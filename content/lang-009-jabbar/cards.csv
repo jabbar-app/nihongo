@@ -1,0 +1,18 @@
+id,jp,romaji,en,tags,pattern,note
+001,"はじめまして。ジャッバーと申します。","Hajimemashite. Jabbar to mōshimasu.","Nice to meet you. I’m Jabbar.","interview;intro","自己紹介","Replace name if needed"
+002,"本日はお時間をいただき、誠にありがとうございます。","Honjitsu wa o-jikan o itadaki, makoto ni arigatō gozaimasu.","Thank you for your time today.","interview;courtesy","—","—"
+003,"現在は医療領域のフルスタックエンジニアです。","Genzai wa iryō ryōiki no full-stack enjiniā desu.","I’m a full‑stack engineer in healthcare.","interview;background","—","—"
+004,"React/TSとPython/Flaskを扱っています。","React/TS to Python/Flask o atsukatte imasu.","I use React/TS and Python/Flask.","interview;tech","—","—"
+005,"志望動機は、貴社のミッションに共感したためです。","Shibō dōki wa, kisha no misshon ni kyōkan shita tame desu.","I resonate with your mission.","interview;motivation","—","—"
+006,"課題の言語化と合意形成が得意です。","Kadai no gengoka to gōi keisei ga tokui desu.","Strong at framing and alignment.","interview;strength","—","—"
+007,"STARで説明いたします。","Esutīēāru de setsumei itashimasu.","I’ll explain using STAR.","interview;STAR","—","—"
+008,"状況：UATで不整合が発生。","Jōkyō: YūĒTī de fuseigō ga hassei.","Situation: UAT inconsistency.","interview;STAR","—","—"
+009,"行動：関数を再設計しテストを追加。","Kōdō: kansū o saisekkei shi tesuto o tsuika.","Action: Redesigned function; added tests.","interview;STAR","—","—"
+010,"結果：UATを通過。","Kekka: YūĒTī o tsūka.","Result: Passed UAT.","interview;STAR","—","—"
+011,"前提条件を確認させていただけますか。","Zentei jōken o kakunin sasete itadakemasu ka.","May I confirm assumptions?","interview;clarify","—","—"
+012,"受け入れ条件の定義は。","Ukeire jōken no teigi wa.","How are acceptance criteria defined?","interview;clarify","—","—"
+013,"もし可能であればご教示ください。","Moshi kanō de areba go-kyōji kudasai.","If possible, please advise.","interview;polite","—","—"
+014,"逆質問をよろしいでしょうか。","Gyaku shitsumon o yoroshii deshō ka.","May I ask a question?","interview;closing","—","—"
+015,"本日はありがとうございました。","Honjitsu wa arigatō gozaimashita.","Thank you for today.","interview;closing","—","—"
+
+
