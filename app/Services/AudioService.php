@@ -33,19 +33,18 @@ class AudioService
      * @param UploadedFile $audio
      * @param string $type The type of recording (e.g., 'shadowing', 'flashcard')
      * @param int $referenceId The ID of the related model
+     * @param int $duration Duration in seconds (optional)
      * @return UserRecording
      */
     public function storeRecording(
         User $user,
         UploadedFile $audio,
         string $type,
-        int $referenceId
+        int $referenceId,
+        int $duration = 0
     ): UserRecording {
         // Store the audio file in a private directory
         $path = $audio->store("recordings/{$user->id}", 'private');
-
-        // Get audio duration if possible (this is a simplified version)
-        $duration = 0; // In a real implementation, you'd extract this from the audio file
 
         // Create the recording record
         return UserRecording::create([
@@ -81,5 +80,29 @@ class AudioService
 
         // Delete the database record
         return $recording->delete();
+    }
+
+    /**
+     * Get user's total storage usage.
+     * 
+     * @param User $user
+     * @return array
+     */
+    public function getUserStorageUsage(User $user): array
+    {
+        $recordings = UserRecording::where('user_id', $user->id)->get();
+        $totalSize = 0;
+        
+        foreach ($recordings as $recording) {
+            if (Storage::disk('private')->exists($recording->file_path)) {
+                $totalSize += Storage::disk('private')->size($recording->file_path);
+            }
+        }
+
+        return [
+            'total_recordings' => $recordings->count(),
+            'total_size_bytes' => $totalSize,
+            'total_size_mb' => round($totalSize / 1024 / 1024, 2),
+        ];
     }
 }

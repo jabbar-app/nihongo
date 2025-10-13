@@ -13,9 +13,62 @@ export default function audioPlayer() {
         playbackSpeed: 1,
         speechSynthesis: null,
         currentUtterance: null,
+        keyboardEnabled: false,
 
         init() {
             this.initSpeechSynthesis();
+            this.setupKeyboardShortcuts();
+        },
+
+        setupKeyboardShortcuts() {
+            // Listen for keyboard events when audio player is in focus
+            document.addEventListener('keydown', (event) => {
+                // Only handle shortcuts when keyboard control is enabled
+                if (!this.keyboardEnabled) return;
+
+                // Ignore if typing in input
+                const activeElement = document.activeElement;
+                const isTyping = activeElement && (
+                    activeElement.tagName === 'INPUT' ||
+                    activeElement.tagName === 'TEXTAREA' ||
+                    activeElement.isContentEditable
+                );
+                
+                if (isTyping) return;
+
+                // Arrow keys to adjust speed
+                if (event.key === 'ArrowLeft') {
+                    event.preventDefault();
+                    this.decreaseSpeed();
+                } else if (event.key === 'ArrowRight') {
+                    event.preventDefault();
+                    this.increaseSpeed();
+                }
+            });
+        },
+
+        enableKeyboard() {
+            this.keyboardEnabled = true;
+        },
+
+        disableKeyboard() {
+            this.keyboardEnabled = false;
+        },
+
+        decreaseSpeed() {
+            const speeds = [0.5, 0.75, 1, 1.25, 1.5];
+            const currentIndex = speeds.indexOf(this.playbackSpeed);
+            if (currentIndex > 0) {
+                this.setSpeed(speeds[currentIndex - 1]);
+            }
+        },
+
+        increaseSpeed() {
+            const speeds = [0.5, 0.75, 1, 1.25, 1.5];
+            const currentIndex = speeds.indexOf(this.playbackSpeed);
+            if (currentIndex < speeds.length - 1) {
+                this.setSpeed(speeds[currentIndex + 1]);
+            }
         },
 
         initSpeechSynthesis() {

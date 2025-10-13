@@ -5,12 +5,12 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-4 sm:py-12">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div x-data="flashcardReview({{ json_encode($sessionCards) }}, {{ json_encode($sessionData) }})" 
                  x-init="init()"
                  @keydown.window="handleKeyPress($event)"
-                 class="space-y-6">
+                 class="space-y-4 sm:space-y-6">
                 
                 <!-- Progress Bar -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
@@ -19,7 +19,7 @@
                         <span class="text-sm font-medium text-gray-700" x-text="`${reviewed} / ${total}`"></span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-2.5">
-                        <div class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" 
+                        <div class="bg-blue-600 h-2.5 rounded-full progress-bar-fill" 
                              :style="`width: ${(reviewed / total) * 100}%`"></div>
                     </div>
                     
@@ -39,25 +39,26 @@
 
                 <!-- Flashcard Display -->
                 <div x-show="!sessionComplete" class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-8">
+                    <div class="p-4 sm:p-8">
                         <div class="relative">
                             <!-- Card Container with Flip Animation -->
                             <div class="perspective-1000">
-                                <div class="relative transition-transform duration-500 transform-style-3d"
+                                <div class="relative flashcard-container transform-style-3d"
                                      :class="{ 'rotate-y-180': showAnswer }">
                                     
                                     <!-- Front Side (Japanese) -->
                                     <div class="backface-hidden"
                                          x-show="!showAnswer">
-                                        <div class="text-center py-16">
-                                            <div class="text-5xl font-bold text-gray-900 mb-4" x-text="currentCard?.front"></div>
-                                            <div class="text-2xl text-gray-600" x-text="currentCard?.romaji"></div>
+                                        <div class="text-center py-8 sm:py-16">
+                                            <div class="text-3xl sm:text-5xl font-bold text-gray-900 mb-4 px-4" x-text="currentCard?.front"></div>
+                                            <div class="text-xl sm:text-2xl text-gray-600 px-4" x-text="currentCard?.romaji"></div>
                                             
                                             <!-- Audio Play Button for Japanese -->
                                             <div class="mt-6">
                                                 <button @click="playAudio(currentCard?.front, 'ja-JP')" 
                                                         :disabled="audioPlaying"
-                                                        class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                                        aria-label="Play Japanese audio"
+                                                        class="inline-flex items-center px-6 py-3 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] touch-manipulation">
                                                     <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                                         <path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" />
                                                     </svg>
@@ -67,8 +68,10 @@
                                         </div>
                                         <div class="text-center mt-8">
                                             <button @click="flipCard()" 
-                                                    class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                                                Show Answer (Space)
+                                                    aria-label="Show answer (press Space)"
+                                                    class="w-full sm:w-auto px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:bg-blue-800 transition text-lg font-semibold min-h-[44px] touch-manipulation">
+                                                <span class="sm:hidden">Show Answer</span>
+                                                <span class="hidden sm:inline">Show Answer <kbd class="ml-2 px-2 py-1 text-xs bg-blue-700 rounded">Space</kbd></span>
                                             </button>
                                         </div>
                                     </div>
@@ -76,16 +79,17 @@
                                     <!-- Back Side (English) -->
                                     <div class="backface-hidden"
                                          x-show="showAnswer">
-                                        <div class="text-center py-16">
-                                            <div class="text-3xl text-gray-600 mb-4" x-text="currentCard?.front"></div>
-                                            <div class="text-xl text-gray-500 mb-6" x-text="currentCard?.romaji"></div>
-                                            <div class="text-4xl font-bold text-gray-900" x-text="currentCard?.back"></div>
+                                        <div class="text-center py-8 sm:py-16">
+                                            <div class="text-2xl sm:text-3xl text-gray-600 mb-4 px-4" x-text="currentCard?.front"></div>
+                                            <div class="text-lg sm:text-xl text-gray-500 mb-6 px-4" x-text="currentCard?.romaji"></div>
+                                            <div class="text-3xl sm:text-4xl font-bold text-gray-900 px-4" x-text="currentCard?.back"></div>
                                             
                                             <!-- Audio Play Buttons -->
-                                            <div class="mt-6 flex justify-center gap-4">
+                                            <div class="mt-6 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 px-4">
                                                 <button @click="playAudio(currentCard?.front, 'ja-JP')" 
                                                         :disabled="audioPlaying"
-                                                        class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                                        aria-label="Play Japanese audio"
+                                                        class="inline-flex items-center justify-center px-4 py-3 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] touch-manipulation">
                                                     <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                                         <path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" />
                                                     </svg>
@@ -93,7 +97,8 @@
                                                 </button>
                                                 <button @click="playAudio(currentCard?.back, 'en-US')" 
                                                         :disabled="audioPlaying"
-                                                        class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                                        aria-label="Play English audio"
+                                                        class="inline-flex items-center justify-center px-4 py-3 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] touch-manipulation">
                                                     <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                                         <path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" />
                                                     </svg>
@@ -103,26 +108,30 @@
                                         </div>
                                         
                                         <!-- Rating Buttons -->
-                                        <div class="mt-8 grid grid-cols-4 gap-4">
+                                        <div class="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                                             <button @click="rateCard(1)" 
-                                                    class="px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex flex-col items-center">
-                                                <span class="font-bold text-lg">Again</span>
-                                                <span class="text-sm opacity-75">Press 1</span>
+                                                    aria-label="Rate as Again (press 1)"
+                                                    class="rating-button px-4 py-4 bg-red-600 text-white rounded-lg hover:bg-red-700 active:bg-red-800 flex flex-col items-center justify-center min-h-[60px] touch-manipulation">
+                                                <span class="font-bold text-base sm:text-lg">Again</span>
+                                                <span class="text-xs sm:text-sm opacity-75 hidden sm:inline"><kbd class="bg-red-700 px-1.5 py-0.5 rounded">1</kbd></span>
                                             </button>
                                             <button @click="rateCard(2)" 
-                                                    class="px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition flex flex-col items-center">
-                                                <span class="font-bold text-lg">Hard</span>
-                                                <span class="text-sm opacity-75">Press 2</span>
+                                                    aria-label="Rate as Hard (press 2)"
+                                                    class="rating-button px-4 py-4 bg-orange-600 text-white rounded-lg hover:bg-orange-700 active:bg-orange-800 flex flex-col items-center justify-center min-h-[60px] touch-manipulation">
+                                                <span class="font-bold text-base sm:text-lg">Hard</span>
+                                                <span class="text-xs sm:text-sm opacity-75 hidden sm:inline"><kbd class="bg-orange-700 px-1.5 py-0.5 rounded">2</kbd></span>
                                             </button>
                                             <button @click="rateCard(3)" 
-                                                    class="px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex flex-col items-center">
-                                                <span class="font-bold text-lg">Good</span>
-                                                <span class="text-sm opacity-75">Press 3</span>
+                                                    aria-label="Rate as Good (press 3)"
+                                                    class="rating-button px-4 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 active:bg-green-800 flex flex-col items-center justify-center min-h-[60px] touch-manipulation">
+                                                <span class="font-bold text-base sm:text-lg">Good</span>
+                                                <span class="text-xs sm:text-sm opacity-75 hidden sm:inline"><kbd class="bg-green-700 px-1.5 py-0.5 rounded">3</kbd></span>
                                             </button>
                                             <button @click="rateCard(4)" 
-                                                    class="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex flex-col items-center">
-                                                <span class="font-bold text-lg">Easy</span>
-                                                <span class="text-sm opacity-75">Press 4</span>
+                                                    aria-label="Rate as Easy (press 4)"
+                                                    class="rating-button px-4 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:bg-blue-800 flex flex-col items-center justify-center min-h-[60px] touch-manipulation">
+                                                <span class="font-bold text-base sm:text-lg">Easy</span>
+                                                <span class="text-xs sm:text-sm opacity-75 hidden sm:inline"><kbd class="bg-blue-700 px-1.5 py-0.5 rounded">4</kbd></span>
                                             </button>
                                         </div>
                                     </div>
@@ -181,6 +190,30 @@
         }
         .rotate-y-180 {
             transform: rotateY(180deg);
+        }
+        
+        /* Enhanced card flip animation */
+        .flashcard-container {
+            transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        
+        /* Smooth progress bar animation */
+        .progress-bar-fill {
+            transition: width 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        
+        /* Button hover effects */
+        .rating-button {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .rating-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .rating-button:active {
+            transform: translateY(0);
         }
     </style>
 

@@ -8,38 +8,63 @@ use App\Models\Flashcard;
 use App\Models\Lesson;
 use App\Models\UserProgress;
 use App\Models\DailyStreak;
+use App\Services\GamificationService;
+use App\Services\RecentlyViewedService;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
+    protected GamificationService $gamificationService;
+    protected RecentlyViewedService $recentlyViewedService;
+
+    public function __construct(
+        GamificationService $gamificationService,
+        RecentlyViewedService $recentlyViewedService
+    ) {
+        $this->gamificationService = $gamificationService;
+        $this->recentlyViewedService = $recentlyViewedService;
+    }
+
     public function index()
     {
         $user = Auth::user();
         $profile = $user->profile;
 
-        // Get flashcard statistics
-        $cardsDueToday = Flashcard::where('user_id', $user->id)
-            ->where('next_review_at', '<=', now())
-            ->count();
+        // Get flashcard statistics (cached for 5 minutes)
+        $cardsDueToday = cache()->remember(
+            "user.{$user->id}.cards_due_today",
+            300,
+            fn() => Flashcard::where('user_id', $user->id)
+                ->where('next_review_at', '<=', now())
+                ->count()
+        );
 
-        $newCardsAvailable = Flashcard::where('user_id', $user->id)
-            ->where('repetitions', 0)
-            ->where('next_review_at', '<=', now())
-            ->count();
+        $newCardsAvailable = cache()->remember(
+            "user.{$user->id}.new_cards_available",
+            300,
+            fn() => Flashcard::where('user_id', $user->id)
+                ->where('repetitions', 0)
+                ->where('next_review_at', '<=', now())
+                ->count()
+        );
 
-        $upcomingReviews = Flashcard::where('user_id', $user->id)
-            ->where('next_review_at', '>', now())
-            ->where('next_review_at', '<=', now()->addDays(7))
-            ->count();
+        $upcomingReviews = cache()->remember(
+            "user.{$user->id}.upcoming_reviews",
+            300,
+            fn() => Flashcard::where('user_id', $user->id)
+                ->where('next_review_at', '>', now())
+                ->where('next_review_at', '<=', now()->addDays(7))
+                ->count()
+        );
 
-        // Get level and XP information
-        $currentLevel = $profile->level ?? 1;
-        $totalXp = $profile->total_xp ?? 0;
-        $xpForNextLevel = $this->getXpForNextLevel($currentLevel);
-        $xpForCurrentLevel = $this->getXpForLevel($currentLevel);
-        $xpProgress = $totalXp - $xpForCurrentLevel;
-        $xpNeeded = $xpForNextLevel - $xpForCurrentLevel;
-        $xpProgressPercentage = $xpNeeded > 0 ? ($xpProgress / $xpNeeded) * 100 : 0;
+        // Get level and XP information using GamificationService
+        $xpProgressData = $this->gamificationService->getXpProgress($user);
+        $currentLevel = $xpProgressData['current_level'];
+        $totalXp = $xpProgressData['current_xp'];
+        $xpForNextLevel = $xpProgressData['xp_for_next_level'];
+        $xpProgress = $xpProgressData['xp_progress'];
+        $xpNeeded = $xpForNextLevel - $xpProgressData['xp_for_current_level'];
+        $xpProgressPercentage = $xpProgressData['progress_percentage'];
 
         // Get streak information
         $currentStreak = $profile->current_streak ?? 0;
@@ -50,21 +75,42 @@ class DashboardController extends Controller
             ->first();
         $studyTimeToday = $todayStreak ? $todayStreak->study_minutes : 0;
 
-        // Get recent lessons accessed
-        $recentLessons = UserProgress::where('user_id', $user->id)
-            ->with('lesson')
-            ->orderBy('last_accessed_at', 'desc')
-            ->limit(5)
-            ->get()
-            ->pluck('lesson')
-            ->filter();
+        // Get recent lessons accessed (with eager loading and caching)
+        $recentLessons = cache()->remember(
+            "user.{$user->id}.recent_lessons",
+            600,
+            fn() => UserProgress::where('user_id', $user->id)
+                ->with('lesson')
+                ->orderBy('last_accessed_at', 'desc')
+                ->limit(5)
+                ->get()
+                ->pluck('lesson')
+                ->filter()
+        );
 
-        // Get overall progress
-        $totalLessons = Lesson::count();
-        $completedLessons = UserProgress::where('user_id', $user->id)
-            ->where('completion_percentage', '>=', 100)
-            ->count();
+        // Get overall progress (cached for 10 minutes)
+        $totalLessons = cache()->remember('total_lessons_count', 3600, fn() => Lesson::count());
+        $completedLessons = cache()->remember(
+            "user.{$user->id}.completed_lessons",
+            600,
+            fn() => UserProgress::where('user_id', $user->id)
+                ->where('completion_percentage', '>=', 100)
+                ->count()
+        );
         $overallProgress = $totalLessons > 0 ? ($completedLessons / $totalLessons) * 100 : 0;
+
+        // Get recent achievements (last 3)
+        $recentAchievements = $user->achievements()
+            ->wherePivot('earned_at', '!=', null)
+            ->orderByPivot('earned_at', 'desc')
+            ->limit(3)
+            ->get();
+
+        // Get recently viewed items
+        $recentlyViewed = $this->recentlyViewedService->getRecentItemsWithModels($user, 5);
+
+        // Get last viewed lesson for "Continue Learning" button
+        $lastViewedLesson = $this->recentlyViewedService->getLastViewedOfType($user, 'lesson');
 
         return view('dashboard.index', compact(
             'user',
@@ -81,27 +127,10 @@ class DashboardController extends Controller
             'currentStreak',
             'studyTimeToday',
             'recentLessons',
-            'overallProgress'
+            'overallProgress',
+            'recentAchievements',
+            'recentlyViewed',
+            'lastViewedLesson'
         ));
-    }
-
-    /**
-     * Calculate XP required for a given level
-     */
-    private function getXpForLevel(int $level): int
-    {
-        if ($level <= 1) {
-            return 0;
-        }
-        // Formula: 100 * level^1.5
-        return (int) (100 * pow($level - 1, 1.5));
-    }
-
-    /**
-     * Calculate XP required for next level
-     */
-    private function getXpForNextLevel(int $currentLevel): int
-    {
-        return (int) (100 * pow($currentLevel, 1.5));
     }
 }

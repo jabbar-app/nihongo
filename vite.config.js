@@ -8,4 +8,23 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    build: {
+        // Optimize chunk size
+        chunkSizeWarningLimit: 1000,
+        rollupOptions: {
+            output: {
+                // Manual chunk splitting for better caching
+                manualChunks: {
+                    'alpine': ['alpinejs'],
+                },
+            },
+        },
+        // Enable minification
+        minify: 'terser',
+        terserOptions: {
+            compress: {
+                drop_console: true, // Remove console.logs in production
+            },
+        },
+    },
 });

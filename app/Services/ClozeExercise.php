@@ -8,7 +8,7 @@ use App\Models\Drill;
 class ClozeExercise implements ExerciseInterface
 {
     /**
-     * Generate cloze deletion exercises
+     * Generate cloze deletion exercises (fill-in-the-blank)
      *
      * @param Drill $drill
      * @return array
@@ -16,27 +16,33 @@ class ClozeExercise implements ExerciseInterface
     public function generate(Drill $drill): array
     {
         $content = $drill->content;
-        
+        $answers = $drill->answers;
         $questions = [];
         
-        // Process each cloze deletion item
+        // Process each cloze question
         foreach ($content as $index => $item) {
-            $sentence = $item['sentence'] ?? $item['text'] ?? '';
-            $blanks = $this->extractBlanks($sentence);
-            
-            $questions[] = [
-                'id' => $index,
-                'sentence' => $sentence,
-                'blank_count' => count($blanks),
-                'blanks' => $blanks,
-                'hint' => $item['hint'] ?? null,
-            ];
+            if (isset($item['question']) && isset($item['hint'])) {
+                // Count the number of blanks in the question
+                $blankCount = substr_count($item['question'], '___');
+                
+                // If no blanks found, look for underscore patterns
+                if ($blankCount === 0) {
+                    $blankCount = preg_match_all('/_+/', $item['question'], $matches);
+                }
+                
+                $questions[] = [
+                    'id' => $index,
+                    'question' => $item['question'],
+                    'hint' => $item['hint'],
+                    'blank_count' => max(1, $blankCount), // At least 1 blank
+                ];
+            }
         }
         
         return [
             'type' => 'cloze',
             'title' => $drill->title,
-            'instructions' => 'Fill in the blanks to complete the sentences.',
+            'instructions' => 'Fill in the blanks with the correct words or phrases. Use the hints provided in parentheses.',
             'questions' => $questions,
         ];
     }
@@ -50,63 +56,33 @@ class ClozeExercise implements ExerciseInterface
      */
     public function validate(array $userAnswers, Drill $drill): array
     {
-        $correctAnswers = $drill->answers;
+        $answers = $drill->answers;
         $results = [];
         
-        foreach ($userAnswers as $questionId => $userBlanks) {
-            $correctBlanks = $correctAnswers[$questionId] ?? null;
+        foreach ($userAnswers as $questionId => $userAnswer) {
+            $correctAnswer = $answers[$questionId] ?? null;
             
-            if ($correctBlanks === null) {
+            if ($correctAnswer === null) {
                 $results[$questionId] = [
                     'correct' => false,
-                    'user_answers' => $userBlanks,
-                    'correct_answers' => null,
-                    'blank_results' => [],
-                    'message' => 'No correct answers found',
+                    'user_answer' => $userAnswer,
+                    'correct_answer' => null,
+                    'message' => 'No correct answer found',
                 ];
                 continue;
             }
             
-            // Validate each blank
-            $blankResults = [];
-            $allCorrect = true;
+            // Normalize answers for comparison
+            $normalizedUserAnswer = $this->normalizeAnswer($userAnswer);
+            $normalizedCorrectAnswer = $this->normalizeAnswer($correctAnswer);
             
-            foreach ($userBlanks as $blankIndex => $userBlank) {
-                $correctBlank = $correctBlanks[$blankIndex] ?? null;
-                
-                if ($correctBlank === null) {
-                    $blankResults[$blankIndex] = [
-                        'correct' => false,
-                        'user_answer' => $userBlank,
-                        'correct_answer' => null,
-                    ];
-                    $allCorrect = false;
-                    continue;
-                }
-                
-                // Normalize and compare
-                $normalizedUserBlank = $this->normalizeAnswer($userBlank);
-                $normalizedCorrectBlank = $this->normalizeAnswer($correctBlank);
-                
-                $isCorrect = $normalizedUserBlank === $normalizedCorrectBlank;
-                
-                $blankResults[$blankIndex] = [
-                    'correct' => $isCorrect,
-                    'user_answer' => $userBlank,
-                    'correct_answer' => $correctBlank,
-                ];
-                
-                if (!$isCorrect) {
-                    $allCorrect = false;
-                }
-            }
+            $isCorrect = $normalizedUserAnswer === $normalizedCorrectAnswer;
             
             $results[$questionId] = [
-                'correct' => $allCorrect,
-                'user_answers' => $userBlanks,
-                'correct_answers' => $correctBlanks,
-                'blank_results' => $blankResults,
-                'message' => $allCorrect ? 'All blanks correct!' : 'Some blanks are incorrect',
+                'correct' => $isCorrect,
+                'user_answer' => $userAnswer,
+                'correct_answer' => $correctAnswer,
+                'message' => $isCorrect ? 'Correct!' : 'Incorrect',
             ];
         }
         
@@ -125,53 +101,20 @@ class ClozeExercise implements ExerciseInterface
             return 0.0;
         }
         
-        $totalBlanks = 0;
-        $correctBlanks = 0;
+        $correctCount = 0;
+        $totalCount = count($results);
         
         foreach ($results as $result) {
-            if (isset($result['blank_results'])) {
-                foreach ($result['blank_results'] as $blankResult) {
-                    $totalBlanks++;
-                    if ($blankResult['correct']) {
-                        $correctBlanks++;
-                    }
-                }
+            if ($result['correct']) {
+                $correctCount++;
             }
         }
         
-        if ($totalBlanks === 0) {
-            return 0.0;
-        }
-        
-        return round(($correctBlanks / $totalBlanks) * 100, 2);
+        return round(($correctCount / $totalCount) * 100, 2);
     }
 
     /**
-     * Extract blank positions from a sentence
-     *
-     * @param string $sentence
-     * @return array
-     */
-    private function extractBlanks(string $sentence): array
-    {
-        $blanks = [];
-        $pattern = '/___+|____+|\[blank\]/i';
-        
-        preg_match_all($pattern, $sentence, $matches, PREG_OFFSET_MATCH);
-        
-        foreach ($matches[0] as $index => $match) {
-            $blanks[] = [
-                'index' => $index,
-                'position' => $match[1],
-                'placeholder' => $match[0],
-            ];
-        }
-        
-        return $blanks;
-    }
-
-    /**
-     * Normalize answer for comparison
+     * Normalize answer for comparison (trim, lowercase, remove extra spaces)
      *
      * @param string|array $answer
      * @return string
@@ -182,7 +125,6 @@ class ClozeExercise implements ExerciseInterface
             $answer = implode(' ', $answer);
         }
         
-        // Remove extra whitespace and normalize
         return mb_strtolower(trim(preg_replace('/\s+/', ' ', $answer)));
     }
 }

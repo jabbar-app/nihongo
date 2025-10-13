@@ -4,6 +4,7 @@ export default function exerciseAttempt(exerciseData, drillId) {
     answers: {},
     results: null,
     submitted: false,
+    submitting: false,
     score: 0,
     correctCount: 0,
     elapsedTime: 0,
@@ -49,6 +50,8 @@ export default function exerciseAttempt(exerciseData, drillId) {
         return;
       }
 
+      this.submitting = true;
+
       this.stopTimer();
 
       try {
@@ -84,6 +87,8 @@ export default function exerciseAttempt(exerciseData, drillId) {
         console.error('Error submitting answers:', error);
         alert('An error occurred while submitting your answers. Please try again.');
         this.startTimer(); // Restart timer if submission failed
+      } finally {
+        this.submitting = false;
       }
     },
 

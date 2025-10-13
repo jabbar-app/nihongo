@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Services\GamificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,13 +12,26 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
+    protected GamificationService $gamificationService;
+
+    public function __construct(GamificationService $gamificationService)
+    {
+        $this->gamificationService = $gamificationService;
+    }
+
     /**
      * Display the user's profile form.
      */
     public function edit(Request $request): View
     {
+        $user = $request->user();
+        $profile = $user->profile;
+        $xpProgress = $this->gamificationService->getXpProgress($user);
+
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user' => $user,
+            'profile' => $profile,
+            'xpProgress' => $xpProgress,
         ]);
     }
 
@@ -45,7 +59,17 @@ class ProfileController extends Controller
         $validated = $request->validate([
             'study_goal_minutes' => ['required', 'integer', 'min:15', 'max:480'],
             'cards_per_day_goal' => ['required', 'integer', 'min:5', 'max:100'],
+            'study_reminders_enabled' => ['nullable', 'boolean'],
+            'study_reminder_time' => ['nullable', 'date_format:H:i'],
         ]);
+
+        // Convert checkbox to boolean
+        $validated['study_reminders_enabled'] = $request->has('study_reminders_enabled');
+
+        // If reminders are disabled, clear the time
+        if (!$validated['study_reminders_enabled']) {
+            $validated['study_reminder_time'] = null;
+        }
 
         $request->user()->profile()->updateOrCreate(
             ['user_id' => $request->user()->id],

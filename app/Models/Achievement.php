@@ -31,6 +31,7 @@ class Achievement extends Model
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_achievements')
+            ->using(UserAchievement::class)
             ->withPivot('progress', 'earned_at')
             ->withTimestamps();
     }

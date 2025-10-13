@@ -57,6 +57,11 @@ class User extends Authenticatable
         return $this->hasMany(Flashcard::class);
     }
 
+    public function flashcardReviews()
+    {
+        return $this->hasManyThrough(FlashcardReview::class, Flashcard::class);
+    }
+
     public function exerciseAttempts()
     {
         return $this->hasMany(ExerciseAttempt::class);
@@ -95,7 +100,18 @@ class User extends Authenticatable
     public function achievements()
     {
         return $this->belongsToMany(Achievement::class, 'user_achievements')
+            ->using(UserAchievement::class)
             ->withPivot('progress', 'earned_at')
             ->withTimestamps();
+    }
+
+    public function levelUps()
+    {
+        return $this->hasMany(LevelUp::class);
+    }
+
+    public function bookmarks()
+    {
+        return $this->hasMany(Bookmark::class);
     }
 }

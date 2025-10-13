@@ -19,6 +19,10 @@ class UserProfile extends Model
         'longest_streak',
         'study_goal_minutes',
         'cards_per_day_goal',
+        'study_reminder_time',
+        'study_reminders_enabled',
+        'notification_permission_requested',
+        'last_streak_recovery_at',
     ];
 
     protected function casts(): array
@@ -30,6 +34,9 @@ class UserProfile extends Model
             'longest_streak' => 'integer',
             'study_goal_minutes' => 'integer',
             'cards_per_day_goal' => 'integer',
+            'study_reminders_enabled' => 'boolean',
+            'notification_permission_requested' => 'boolean',
+            'last_streak_recovery_at' => 'datetime',
         ];
     }
 
@@ -41,6 +48,7 @@ class UserProfile extends Model
     public function achievements(): BelongsToMany
     {
         return $this->belongsToMany(Achievement::class, 'user_achievements')
+            ->using(UserAchievement::class)
             ->withPivot('progress', 'earned_at')
             ->withTimestamps();
     }

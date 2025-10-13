@@ -11,6 +11,10 @@ use Carbon\Carbon;
 
 class SpacedRepetitionService
 {
+    public function __construct(
+        protected CacheService $cacheService
+    ) {}
+
     /**
      * Calculate the next review parameters using the SM-2 algorithm.
      * 
@@ -141,6 +145,9 @@ class SpacedRepetitionService
                 'repetitions' => $reviewData['repetitions'],
                 'next_review_at' => $reviewData['next_review_at'],
             ]);
+
+            // Clear flashcard cache for the user
+            $this->cacheService->clearFlashcardCache($card->user);
 
             return $review;
         });

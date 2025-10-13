@@ -1,7 +1,7 @@
 @props(['lesson'])
 
 <a href="{{ route('lessons.show', $lesson->slug) }}" 
-   class="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200 overflow-hidden">
+   class="block bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover-lift card-hover">
     <div class="p-6">
         <div class="flex items-center justify-between mb-3">
             <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 font-semibold text-sm">

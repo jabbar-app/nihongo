@@ -1,31 +1,31 @@
 <x-app-layout>
-  <div class="py-12">
+  <div class="py-4 sm:py-12">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header -->
-      <div class="mb-6">
+      <div class="mb-4 sm:mb-6">
         <a href="{{ route('lessons.show', $drill->lesson->slug) }}"
-          class="text-sm text-gray-600 hover:text-gray-900 flex items-center mb-4">
+          class="text-xs sm:text-sm text-gray-600 hover:text-gray-900 flex items-center mb-4 min-h-[44px] touch-manipulation">
           <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
           Back to Lesson
         </a>
 
-        <div class="flex items-center justify-between">
-          <div>
-            <h1 class="text-3xl font-bold text-gray-900">{{ $drill->title }}</h1>
-            <p class="mt-1 text-sm text-gray-600">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <h1 class="text-xl sm:text-3xl font-bold text-gray-900 break-words">{{ $drill->title }}</h1>
+            <p class="mt-1 text-xs sm:text-sm text-gray-600">
               {{ $drill->lesson->title }} • {{ ucfirst($drill->type) }} Exercise
             </p>
           </div>
-          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-medium bg-indigo-100 text-indigo-800 self-start">
             {{ ucfirst($drill->type) }}
           </span>
         </div>
       </div>
 
       <!-- Exercise Content -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6"
         x-data="exerciseAttempt(@js($exerciseData), {{ $drill->id }})">
 
         <!-- Instructions -->
@@ -88,8 +88,16 @@
                   </div>
                 </template>
                 
+                <!-- For cloze exercises, show question with highlighted blanks -->
+                <template x-if="!question.source_sentence && question.question && question.question.includes('_')">
+                  <div class="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                    <p class="text-lg text-gray-900 font-japanese" 
+                       x-html="question.question.replace(/_{2,}/g, '<span class=\'inline-block min-w-[100px] border-b-2 border-indigo-400 border-dashed px-2 py-1 mx-1 bg-white\'>___</span>')"></p>
+                  </div>
+                </template>
+                
                 <!-- For other exercise types, show regular question -->
-                <template x-if="!question.source_sentence">
+                <template x-if="!question.source_sentence && (!question.question || !question.question.includes('_'))">
                   <p class="text-lg text-gray-900" x-html="question.question"></p>
                 </template>
                 
@@ -101,6 +109,7 @@
               <!-- Answer Input -->
               <div class="mb-3">
                 <input type="text" x-model="answers[question.id]" :disabled="submitted"
+                  :aria-label="'Answer for question ' + (index + 1)"
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   :class="{ 'border-green-500': submitted && results[question.id]?.correct, 'border-red-500': submitted && results[question.id] && !results[question.id].correct }"
                   placeholder="Type your answer here...">
@@ -155,9 +164,14 @@
 
             <div class="flex space-x-3" :class="{ 'ml-auto': !submitted }">
               <template x-if="!submitted">
-                <button type="submit" :disabled="!canSubmit()"
-                  class="inline-flex items-center px-6 py-3 bg-indigo-600 border border-transparent rounded-lg font-semibold text-sm text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
-                  Submit Answers
+                <button type="submit" :disabled="!canSubmit() || submitting"
+                  aria-label="Submit all answers"
+                  class="inline-flex items-center px-6 py-3 bg-indigo-600 border border-transparent rounded-lg font-semibold text-sm text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 disabled:opacity-50 disabled:cursor-not-allowed btn-press">
+                  <span x-show="!submitting">Submit Answers</span>
+                  <span x-show="submitting" class="flex items-center">
+                    <span class="spinner-sm mr-2"></span>
+                    Submitting...
+                  </span>
                 </button>
               </template>
 

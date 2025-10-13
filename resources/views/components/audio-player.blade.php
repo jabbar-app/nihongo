@@ -2,10 +2,15 @@
     'text' => '',
     'lang' => 'ja-JP',
     'showSpeedControl' => true,
-    'autoPlay' => false
+    'autoPlay' => false,
+    'showKeyboardHints' => false
 ])
 
-<div x-data="audioPlayer()" x-init="init(); {{ $autoPlay ? "play('$text', '$lang')" : '' }}" class="inline-flex items-center gap-3">
+<div x-data="audioPlayer()" 
+     x-init="init(); {{ $autoPlay ? "play('$text', '$lang')" : '' }}" 
+     @mouseenter="enableKeyboard()" 
+     @mouseleave="disableKeyboard()"
+     class="inline-flex items-center gap-3">
     <!-- Play/Pause Button -->
     <button 
         @click="togglePlayPause('{{ addslashes($text) }}', '{{ $lang }}')"
@@ -51,6 +56,11 @@
             <option value="1.25">1.25x</option>
             <option value="1.5">1.5x</option>
         </select>
+        @if($showKeyboardHints)
+        <span class="text-xs text-gray-500 ml-2">
+            <kbd class="kbd">←</kbd> <kbd class="kbd">→</kbd>
+        </span>
+        @endif
     </div>
     @endif
     
