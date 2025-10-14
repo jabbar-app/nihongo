@@ -78,24 +78,38 @@ class FlashcardReviewObserver
         $today = now()->toDateString();
 
         \DB::transaction(function () use ($user, $today, $durationSeconds, $xpEarned) {
-            // Use lockForUpdate to prevent race conditions
-            $dailyStreak = DailyStreak::where('user_id', $user->id)
-                ->where('date', $today)
-                ->lockForUpdate()
-                ->first();
+            // Idempotent upsert to avoid UNIQUE constraint violations
+            $values = [
+                'activities_count' => \DB::raw('activities_count + 1'),
+                'study_minutes' => \DB::raw('study_minutes + ' . (int) ceil($durationSeconds / 60)),
+                'xp_earned' => \DB::raw('xp_earned + ' . $xpEarned),
+                'updated_at' => now(),
+            ];
 
-            if ($dailyStreak) {
-                $dailyStreak->increment('activities_count');
-                $dailyStreak->increment('study_minutes', (int) ceil($durationSeconds / 60));
-                $dailyStreak->increment('xp_earned', $xpEarned);
-            } else {
-                DailyStreak::create([
-                    'user_id' => $user->id,
-                    'date' => $today,
-                    'activities_count' => 1,
-                    'study_minutes' => (int) ceil($durationSeconds / 60),
-                    'xp_earned' => $xpEarned,
-                ]);
+            $insert = [
+                'user_id' => $user->id,
+                'date' => $today,
+                'activities_count' => 1,
+                'study_minutes' => (int) ceil($durationSeconds / 60),
+                'xp_earned' => $xpEarned,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+
+            // Try atomic update; if zero rows affected, insert; if insert conflicts, fallback to update
+            $affected = DailyStreak::where('user_id', $user->id)
+                ->whereDate('date', $today)
+                ->update($values);
+
+            if ($affected === 0) {
+                try {
+                    DailyStreak::create($insert);
+                } catch (\Illuminate\Database\QueryException $e) {
+                    // Another request inserted concurrently; perform update
+                    DailyStreak::where('user_id', $user->id)
+                        ->whereDate('date', $today)
+                        ->update($values);
+                }
             }
         });
 

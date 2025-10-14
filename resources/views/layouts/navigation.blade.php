@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100" role="navigation" aria-label="Main navigation">
+<nav x-data="{ open: false }" class="sticky top-0 z-50 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-gray-100" role="navigation" aria-label="Main navigation">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -11,7 +11,7 @@
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex" role="menubar">
+                <div class="hidden space-x-6 sm:-my-px sm:ms-10 sm:flex" role="menubar" style="margin-top: auto; margin-bottom: auto;">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
@@ -21,30 +21,44 @@
                     <x-nav-link :href="route('flashcards.index')" :active="request()->routeIs('flashcards.*')">
                         {{ __('Flashcards') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('exercises.history')" :active="request()->routeIs('exercises.history')">
-                        {{ __('Exercises') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('progress.index')" :active="request()->routeIs('progress.*')">
-                        {{ __('Progress') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('achievements.index')" :active="request()->routeIs('achievements.*')">
-                        {{ __('Achievements') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('study-plan.show')" :active="request()->routeIs('study-plan.*')">
-                        {{ __('Study Plan') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('streak.index')" :active="request()->routeIs('streak.*')">
-                        {{ __('Streak') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('bookmarks.index')" :active="request()->routeIs('bookmarks.*')">
-                        {{ __('Bookmarks') }}
-                    </x-nav-link>
+
+                    <!-- More (Overflow) -->
+                    <x-dropdown align="left" width="48">
+                        <x-slot name="trigger">
+                            <button class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out" aria-haspopup="true" aria-expanded="false">
+                                {{ __('More') }}
+                                <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </x-slot>
+                        <x-slot name="content">
+                            <x-dropdown-link :href="route('exercises.history')">
+                                {{ __('Exercises') }}
+                            </x-dropdown-link>
+                            <x-dropdown-link :href="route('progress.index')">
+                                {{ __('Progress') }}
+                            </x-dropdown-link>
+                            <x-dropdown-link :href="route('achievements.index')">
+                                {{ __('Achievements') }}
+                            </x-dropdown-link>
+                            <x-dropdown-link :href="route('study-plan.show')">
+                                {{ __('Study Plan') }}
+                            </x-dropdown-link>
+                            <x-dropdown-link :href="route('streak.index')">
+                                {{ __('Streak') }}
+                            </x-dropdown-link>
+                            <x-dropdown-link :href="route('bookmarks.index')">
+                                {{ __('Bookmarks') }}
+                            </x-dropdown-link>
+                        </x-slot>
+                    </x-dropdown>
                 </div>
             </div>
 
             <!-- Search Bar -->
             <div class="hidden sm:flex sm:items-center sm:flex-1 sm:ms-6 sm:me-6">
-                <form action="{{ route('search.index') }}" method="GET" class="w-full max-w-md">
+                <form action="{{ route('search.index') }}" method="GET" class="w-full max-w-md" role="search" aria-label="Site search">
                     <div class="relative">
                         <label for="desktop-search" class="sr-only">Search phrases, dialogues, and drills</label>
                         <input 
@@ -52,9 +66,9 @@
                             id="desktop-search"
                             name="q" 
                             value="{{ request('q') }}"
-                            placeholder="Search phrases, dialogues, drills..." 
+                            placeholder="Search phrases, dialogues, drills…" 
                             aria-label="Search content"
-                            class="w-full px-4 py-2 pl-10 pr-20 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            class="w-full px-4 py-2 pl-10 pr-20 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm hover:shadow"
                         >
                         <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none" aria-hidden="true">
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -121,10 +135,10 @@
     </div>
 
     <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
+    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden" aria-label="Mobile navigation menu">
         <!-- Mobile Search Bar -->
         <div class="pt-2 pb-3 px-4">
-            <form action="{{ route('search.index') }}" method="GET">
+            <form action="{{ route('search.index') }}" method="GET" role="search" aria-label="Site search (mobile)">
                 <div class="relative">
                     <label for="mobile-search" class="sr-only">Search phrases, dialogues, and drills</label>
                     <input 
@@ -132,7 +146,7 @@
                         id="mobile-search"
                         name="q" 
                         value="{{ request('q') }}"
-                        placeholder="Search..." 
+                        placeholder="Search…" 
                         aria-label="Search content"
                         class="w-full px-4 py-2 pl-10 pr-4 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                     >
@@ -146,6 +160,7 @@
         </div>
 
         <div class="pt-2 pb-3 space-y-1">
+            <div class="px-4 pt-2 pb-1 text-xs font-semibold text-gray-500">Learn</div>
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
@@ -155,21 +170,27 @@
             <x-responsive-nav-link :href="route('flashcards.index')" :active="request()->routeIs('flashcards.*')">
                 {{ __('Flashcards') }}
             </x-responsive-nav-link>
+
+            <div class="px-4 pt-3 pb-1 text-xs font-semibold text-gray-500">Practice</div>
             <x-responsive-nav-link :href="route('exercises.history')" :active="request()->routeIs('exercises.history')">
                 {{ __('Exercises') }}
             </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('study-plan.show')" :active="request()->routeIs('study-plan.*')">
+                {{ __('Study Plan') }}
+            </x-responsive-nav-link>
+
+            <div class="px-4 pt-3 pb-1 text-xs font-semibold text-gray-500">Track</div>
             <x-responsive-nav-link :href="route('progress.index')" :active="request()->routeIs('progress.*')">
                 {{ __('Progress') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('achievements.index')" :active="request()->routeIs('achievements.*')">
                 {{ __('Achievements') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('study-plan.show')" :active="request()->routeIs('study-plan.*')">
-                {{ __('Study Plan') }}
-            </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('streak.index')" :active="request()->routeIs('streak.*')">
                 {{ __('Streak') }}
             </x-responsive-nav-link>
+
+            <div class="px-4 pt-3 pb-1 text-xs font-semibold text-gray-500">Saved</div>
             <x-responsive-nav-link :href="route('bookmarks.index')" :active="request()->routeIs('bookmarks.*')">
                 {{ __('Bookmarks') }}
             </x-responsive-nav-link>
@@ -201,3 +222,22 @@
         </div>
     </div>
 </nav>
+
+@push('scripts')
+<script>
+document.addEventListener('keydown', function (e) {
+    const isK = (e.key === 'k' || e.key === 'K');
+    const metaOrCtrl = e.metaKey || e.ctrlKey;
+    if (isK && metaOrCtrl) {
+        e.preventDefault();
+        const desktop = document.getElementById('desktop-search');
+        const mobile = document.getElementById('mobile-search');
+        const target = window.innerWidth >= 640 ? desktop : mobile;
+        if (target) {
+            target.focus();
+            try { target.select(); } catch (_) { /* ignore */ }
+        }
+    }
+});
+</script>
+@endpush

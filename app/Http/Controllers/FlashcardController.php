@@ -131,13 +131,20 @@ class FlashcardController extends Controller
     public function review(Request $request): View
     {
         $user = auth()->user();
-        
-        // Get due cards and new cards
-        $dueCards = $this->spacedRepetitionService->getDueCards($user, 20);
-        $newCards = $this->spacedRepetitionService->getNewCards($user, 10);
-        
-        // Combine cards for the session (prioritize due cards)
-        $sessionCards = $dueCards->merge($newCards)->shuffle();
+        $mode = $request->query('mode');
+
+        if ($mode === 'new') {
+            // Learn new cards only
+            $sessionCards = $this->spacedRepetitionService->getNewCards($user, 10);
+        } elseif ($mode === 'due') {
+            // Review due cards only
+            $sessionCards = $this->spacedRepetitionService->getDueCards($user, 20);
+        } else {
+            // Mixed session: prioritize due, then add new
+            $dueCards = $this->spacedRepetitionService->getDueCards($user, 20);
+            $newCards = $this->spacedRepetitionService->getNewCards($user, 10);
+            $sessionCards = $dueCards->merge($newCards)->shuffle();
+        }
         
         if ($sessionCards->isEmpty()) {
             return redirect()->route('flashcards.index')
@@ -153,8 +160,17 @@ class FlashcardController extends Controller
             'start_time' => now()->timestamp,
         ];
         
+        $cardsPayload = $sessionCards->map(function ($c) {
+            return [
+                'id' => $c->id,
+                'front' => $c->front,
+                'back' => $c->back,
+                'romaji' => $c->romaji,
+            ];
+        })->values();
+
         return view('flashcards.review', [
-            'sessionCards' => $sessionCards,
+            'sessionCards' => $cardsPayload,
             'sessionData' => $sessionData,
         ]);
     }
@@ -167,23 +183,35 @@ class FlashcardController extends Controller
             'duration' => 'required|integer|min:0',
         ]);
         
-        $flashcard = Flashcard::findOrFail($validated['flashcard_id']);
-        
-        // Ensure the flashcard belongs to the authenticated user
-        if ($flashcard->user_id !== auth()->id()) {
-            abort(403);
+        try {
+            $flashcard = Flashcard::findOrFail($validated['flashcard_id']);
+
+            // Ensure the flashcard belongs to the authenticated user
+            if ($flashcard->user_id !== auth()->id()) {
+                abort(403);
+            }
+
+            // Record the review
+            $this->spacedRepetitionService->recordReview(
+                $flashcard,
+                $validated['rating'],
+                $validated['duration']
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Review recorded successfully',
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Flashcard rate failed', [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
-        
-        // Record the review
-        $this->spacedRepetitionService->recordReview(
-            $flashcard,
-            $validated['rating'],
-            $validated['duration']
-        );
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Review recorded successfully',
-        ]);
     }
 }

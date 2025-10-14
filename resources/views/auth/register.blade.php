@@ -1,5 +1,10 @@
 <x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
+    <div class="text-center mb-6">
+        <h1 class="text-2xl font-semibold text-gray-900">Create your Nihongo account</h1>
+        <p class="mt-1 text-sm text-gray-600">Personalize your study plan and start learning today.</p>
+    </div>
+
+    <form method="POST" action="{{ route('register') }}" aria-label="Registration form">
         @csrf
 
         <!-- Name -->
@@ -55,7 +60,7 @@
             <x-input-error :messages="$errors->get('cards_per_day_goal')" class="mt-2" />
         </div>
 
-        <div class="flex items-center justify-end mt-4">
+        <div class="flex items-center justify-between mt-6">
             <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
                 {{ __('Already registered?') }}
             </a>

@@ -41,14 +41,14 @@
                 <div x-show="!sessionComplete" class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-4 sm:p-8">
                         <div class="relative">
-                            <!-- Card Container with Flip Animation -->
+					<!-- Card Container with Flip Animation -->
                             <div class="perspective-1000">
-                                <div class="relative flashcard-container transform-style-3d"
-                                     :class="{ 'rotate-y-180': showAnswer }">
+                                <div class="relative min-h-[260px] sm:min-h-[360px]">
+                                    <div class="absolute inset-0 flashcard-container"
+								 :class="{ 'rotate-y-180': showAnswer }">
                                     
-                                    <!-- Front Side (Japanese) -->
-                                    <div class="backface-hidden"
-                                         x-show="!showAnswer">
+							<!-- Front Side (Japanese) -->
+							<div class="absolute inset-0 backface-hidden" :aria-hidden="showAnswer">
                                         <div class="text-center py-8 sm:py-16">
                                             <div class="text-3xl sm:text-5xl font-bold text-gray-900 mb-4 px-4" x-text="currentCard?.front"></div>
                                             <div class="text-xl sm:text-2xl text-gray-600 px-4" x-text="currentCard?.romaji"></div>
@@ -66,7 +66,7 @@
                                                 </button>
                                             </div>
                                         </div>
-                                        <div class="text-center mt-8">
+                                        <div class="text-center">
                                             <button @click="flipCard()" 
                                                     aria-label="Show answer (press Space)"
                                                     class="w-full sm:w-auto px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:bg-blue-800 transition text-lg font-semibold min-h-[44px] touch-manipulation">
@@ -77,8 +77,7 @@
                                     </div>
 
                                     <!-- Back Side (English) -->
-                                    <div class="backface-hidden"
-                                         x-show="showAnswer">
+                                    <div class="absolute inset-0 backface-hidden rotate-y-180" :aria-hidden="!showAnswer">
                                         <div class="text-center py-8 sm:py-16">
                                             <div class="text-2xl sm:text-3xl text-gray-600 mb-4 px-4" x-text="currentCard?.front"></div>
                                             <div class="text-lg sm:text-xl text-gray-500 mb-6 px-4" x-text="currentCard?.romaji"></div>
@@ -107,37 +106,54 @@
                                             </div>
                                         </div>
                                         
-                                        <!-- Rating Buttons -->
-                                        <div class="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-                                            <button @click="rateCard(1)" 
-                                                    aria-label="Rate as Again (press 1)"
-                                                    class="rating-button px-4 py-4 bg-red-600 text-white rounded-lg hover:bg-red-700 active:bg-red-800 flex flex-col items-center justify-center min-h-[60px] touch-manipulation">
-                                                <span class="font-bold text-base sm:text-lg">Again</span>
-                                                <span class="text-xs sm:text-sm opacity-75 hidden sm:inline"><kbd class="bg-red-700 px-1.5 py-0.5 rounded">1</kbd></span>
-                                            </button>
-                                            <button @click="rateCard(2)" 
-                                                    aria-label="Rate as Hard (press 2)"
-                                                    class="rating-button px-4 py-4 bg-orange-600 text-white rounded-lg hover:bg-orange-700 active:bg-orange-800 flex flex-col items-center justify-center min-h-[60px] touch-manipulation">
-                                                <span class="font-bold text-base sm:text-lg">Hard</span>
-                                                <span class="text-xs sm:text-sm opacity-75 hidden sm:inline"><kbd class="bg-orange-700 px-1.5 py-0.5 rounded">2</kbd></span>
-                                            </button>
-                                            <button @click="rateCard(3)" 
-                                                    aria-label="Rate as Good (press 3)"
-                                                    class="rating-button px-4 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 active:bg-green-800 flex flex-col items-center justify-center min-h-[60px] touch-manipulation">
-                                                <span class="font-bold text-base sm:text-lg">Good</span>
-                                                <span class="text-xs sm:text-sm opacity-75 hidden sm:inline"><kbd class="bg-green-700 px-1.5 py-0.5 rounded">3</kbd></span>
-                                            </button>
-                                            <button @click="rateCard(4)" 
-                                                    aria-label="Rate as Easy (press 4)"
-                                                    class="rating-button px-4 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:bg-blue-800 flex flex-col items-center justify-center min-h-[60px] touch-manipulation">
-                                                <span class="font-bold text-base sm:text-lg">Easy</span>
-                                                <span class="text-xs sm:text-sm opacity-75 hidden sm:inline"><kbd class="bg-blue-700 px-1.5 py-0.5 rounded">4</kbd></span>
-                                            </button>
-                                        </div>
-                                    </div>
+                                        
+							</div>
+						</div>
+                                </div>
+                            </div>
+                        
+                        <!-- Rating / Actions Bar -->
+                        <div x-show="showAnswer">
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                                <button @click="rateCard(1)" 
+                                        aria-label="Rate as Again (press 1)"
+                                        class="rating-button px-4 py-4 bg-red-600 text-white rounded-lg hover:bg-red-700 active:bg-red-800 flex flex-col items-center justify-center min-h-[60px] touch-manipulation">
+                                    <span class="font-bold text-base sm:text-lg">Again</span>
+                                    <span class="text-xs sm:text-sm opacity-75 hidden sm:inline"><kbd class="bg-red-700 px-1.5 py-0.5 rounded">1</kbd></span>
+                                </button>
+                                <button @click="rateCard(2)" 
+                                        aria-label="Rate as Hard (press 2)"
+                                        class="rating-button px-4 py-4 bg-orange-600 text-white rounded-lg hover:bg-orange-700 active:bg-orange-800 flex flex-col items-center justify-center min-h-[60px] touch-manipulation">
+                                    <span class="font-bold text-base sm:text-lg">Hard</span>
+                                    <span class="text-xs sm:text-sm opacity-75 hidden sm:inline"><kbd class="bg-orange-700 px-1.5 py-0.5 rounded">2</kbd></span>
+                                </button>
+                                <button @click="rateCard(3)" 
+                                        aria-label="Rate as Good (press 3)"
+                                        class="rating-button px-4 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 active:bg-green-800 flex flex-col items-center justify-center min-h-[60px] touch-manipulation">
+                                    <span class="font-bold text-base sm:text-lg">Good</span>
+                                    <span class="text-xs sm:text-sm opacity-75 hidden sm:inline"><kbd class="bg-green-700 px-1.5 py-0.5 rounded">3</kbd></span>
+                                </button>
+                                <button @click="rateCard(4)" 
+                                        aria-label="Rate as Easy (press 4)"
+                                        class="rating-button px-4 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:bg-blue-800 flex flex-col items-center justify-center min-h-[60px] touch-manipulation">
+                                    <span class="font-bold text-base sm:text-lg">Easy</span>
+                                    <span class="text-xs sm:text-sm opacity-75 hidden sm:inline"><kbd class="bg-blue-700 px-1.5 py-0.5 rounded">4</kbd></span>
+                                </button>
+                            </div>
+                            
+                            <div class="mt-4 flex items-center justify-between">
+                                <div class="text-xs sm:text-sm text-gray-500">Keys: Space = Flip, 1–4 = Rate, Enter = Good, N = Next (Good)</div>
+                                <div class="flex items-center gap-3">
+                                    <label class="inline-flex items-center text-sm text-gray-600 select-none">
+                                        <input type="checkbox" x-model="autoAdvance" class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"> Auto-advance
+                                    </label>
+                                    <button @click="nextGood()" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 active:bg-indigo-800 min-h-[44px] touch-manipulation">
+                                        Next (Good)
+                                    </button>
                                 </div>
                             </div>
                         </div>
+                    </div>
                     </div>
                 </div>
 
@@ -185,9 +201,9 @@
         .transform-style-3d {
             transform-style: preserve-3d;
         }
-        .backface-hidden {
-            backface-visibility: hidden;
-        }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        .flashcard-container { transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1); transform-style: preserve-3d; }
         .rotate-y-180 {
             transform: rotateY(180deg);
         }
@@ -236,8 +252,18 @@
                 audioPlaying: false,
                 speechSynthesis: null,
                 currentUtterance: null,
+                autoAdvance: true,
 
                 init() {
+                    console.log('[Review] init');
+                    console.log('[Review] received cards:', this.cards);
+                    console.log('[Review] sessionData:', {
+                        reviewed: this.reviewed,
+                        total: this.total,
+                        correct: this.correct,
+                        startTime: this.startTime
+                    });
+                    window.debugFlashcards = { cards: this.cards, sessionData };
                     this.loadCard();
                     this.initSpeechSynthesis();
                 },
@@ -310,19 +336,36 @@
                     
                     if (this.currentIndex < this.cards.length) {
                         this.currentCard = this.cards[this.currentIndex];
+                        console.log('[Review] loadCard index:', this.currentIndex, 'card:', this.currentCard);
                         this.showAnswer = false;
                         this.cardStartTime = Date.now();
                     } else {
+                        console.log('[Review] completeSession reached');
                         this.completeSession();
                     }
                 },
 
                 flipCard() {
+                    console.log('[Review] flipCard from showAnswer=', this.showAnswer);
                     this.showAnswer = true;
                 },
 
+                nextGood() {
+                    console.log('[Review] nextGood clicked. showAnswer=', this.showAnswer);
+                    if (!this.showAnswer) {
+                        this.flipCard();
+                        return;
+                    }
+                    console.log('[Review] nextGood -> rateCard(3) with currentCard:', this.currentCard);
+                    this.rateCard(3);
+                },
+
                 async rateCard(rating) {
-                    if (!this.showAnswer) return;
+                    if (!this.showAnswer) {
+                        console.warn('[Review] rateCard ignored because answer not shown yet');
+                        return;
+                    }
+                    console.log('[Review] rateCard called with rating:', rating, 'card:', this.currentCard);
 
                     const duration = Math.floor((Date.now() - this.cardStartTime) / 1000);
                     
@@ -346,13 +389,18 @@
                         });
 
                         if (response.ok) {
+                            console.log('[Review] rate success');
                             this.reviewed++;
                             this.currentIndex++;
                             
                             // Auto-advance to next card after a short delay
+                            const delay = this.autoAdvance ? 250 : 0;
                             setTimeout(() => {
                                 this.loadCard();
-                            }, 300);
+                            }, delay);
+                        } else {
+                            const text = await response.text().catch(() => '');
+                            console.error('[Review] rate failed', response.status, text);
                         }
                     } catch (error) {
                         console.error('Error recording review:', error);
@@ -393,6 +441,16 @@
                             event.preventDefault();
                             this.rateCard(parseInt(key));
                         }
+                        if (event.key === 'Enter') {
+                            event.preventDefault();
+                            this.rateCard(3);
+                        }
+                    }
+
+                    // N for Next (Good)
+                    if (event.key.toLowerCase() === 'n') {
+                        event.preventDefault();
+                        this.nextGood();
                     }
                 }
             }

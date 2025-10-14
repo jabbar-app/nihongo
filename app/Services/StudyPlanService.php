@@ -16,12 +16,14 @@ class StudyPlanService
      */
     public function getDailyPlan(User $user, string $date): ?DailyPlan
     {
+        $normalized = Carbon::parse($date)->copy()->startOfDay();
+
         $plan = DailyPlan::where('user_id', $user->id)
-            ->where('date', $date)
+            ->whereDate('date', $normalized->toDateString())
             ->first();
 
         if (!$plan) {
-            $plan = $this->generateDailyPlan($user, Carbon::parse($date));
+            $plan = $this->generateDailyPlan($user, $normalized);
         }
 
         return $plan;
@@ -32,9 +34,12 @@ class StudyPlanService
      */
     public function generateDailyPlan(User $user, Carbon $date): DailyPlan
     {
+        // Normalize the date to start of day to avoid UNIQUE collisions on different time representations
+        $normalized = $date->copy()->startOfDay();
+
         // Check if plan already exists for this date
         $existingPlan = DailyPlan::where('user_id', $user->id)
-            ->where('date', $date->toDateString())
+            ->whereDate('date', $normalized->toDateString())
             ->first();
 
         if ($existingPlan) {
@@ -65,18 +70,35 @@ class StudyPlanService
             'goal_minutes' => $profile->study_goal_minutes,
         ];
 
-        // Create or update the daily plan
-        $plan = DailyPlan::updateOrCreate(
-            [
-                'user_id' => $user->id,
-                'date' => $date->toDateString(),
-            ],
-            [
-                'plan_data' => $planData,
-                'completed_activities' => 0,
-                'total_activities' => count($activities),
-            ]
-        );
+        // Create or update the daily plan (idempotent for the same day)
+        try {
+            $plan = DailyPlan::updateOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'date' => $normalized->toDateString(),
+                ],
+                [
+                    'plan_data' => $planData,
+                    'completed_activities' => 0,
+                    'total_activities' => count($activities),
+                ]
+            );
+        } catch (\Illuminate\Database\QueryException $e) {
+            // In case of a rare race condition, fetch the existing plan (no 404)
+            $plan = DailyPlan::where('user_id', $user->id)
+                ->whereDate('date', $normalized->toDateString())
+                ->first();
+            if (!$plan) {
+                // As a last resort, create a fresh plan
+                $plan = DailyPlan::create([
+                    'user_id' => $user->id,
+                    'date' => $normalized->toDateString(),
+                    'plan_data' => $planData,
+                    'completed_activities' => 0,
+                    'total_activities' => count($activities),
+                ]);
+            }
+        }
 
         return $plan;
     }

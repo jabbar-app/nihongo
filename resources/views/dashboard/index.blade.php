@@ -4,8 +4,8 @@
             <!-- Welcome Message -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-4 sm:p-6 text-gray-900">
-                    <h2 class="text-xl sm:text-2xl font-bold mb-2">Welcome back, {{ $user->name }}! 👋</h2>
-                    <p class="text-sm sm:text-base text-gray-600">Ready to continue your Japanese learning journey?</p>
+                    <h2 class="text-xl sm:text-2xl font-bold mb-1">Welcome back, {{ $user->name }}-さん! 👋</h2>
+                    <p class="text-sm sm:text-base text-gray-700 mt-1">お帰りなさい！ 学習を続けましょう。</p>
                 </div>
             </div>
 

@@ -48,27 +48,38 @@
         
         <!-- Loading State -->
         <template x-if="loading">
-            <svg class="{{ $iconSizes[$size] ?? $iconSizes['md'] }} mr-2 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
+            <div class="inline-flex items-center">
+                <svg class="{{ $iconSizes[$size] ?? $iconSizes['md'] }} mr-2 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Loading...</span>
+            </div>
         </template>
         
         <!-- Playing State -->
         <template x-if="playing && !loading">
-            <svg class="{{ $iconSizes[$size] ?? $iconSizes['md'] }} mr-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-            </svg>
+            <div class="inline-flex items-center">
+                <svg class="{{ $iconSizes[$size] ?? $iconSizes['md'] }} mr-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                <span>Playing...</span>
+            </div>
         </template>
         
         <!-- Default State -->
         <template x-if="!playing && !loading">
-            <svg class="{{ $iconSizes[$size] ?? $iconSizes['md'] }} mr-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
-            </svg>
+            <div class="inline-flex items-center">
+                @if ($slot->isEmpty())
+                    <svg class="{{ $iconSizes[$size] ?? $iconSizes['md'] }} mr-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Play Audio</span>
+                @else
+                    {{ $slot }}
+                @endif
+            </div>
         </template>
-        
-        <span x-text="playing ? 'Playing...' : (loading ? 'Loading...' : '{{ $slot->isEmpty() ? 'Play Audio' : $slot }}')"></span>
     </button>
     
     <!-- Error Message -->
