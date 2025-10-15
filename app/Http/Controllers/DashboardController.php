@@ -75,6 +75,28 @@ class DashboardController extends Controller
             ->first();
         $studyTimeToday = $todayStreak ? $todayStreak->study_minutes : 0;
 
+        // Get speaking-focused metrics
+        $studyGoalMinutes = $profile->study_goal_minutes ?? 30;
+        $todaySpeakingProgress = $studyGoalMinutes > 0 ? min(($studyTimeToday / $studyGoalMinutes) * 100, 100) : 0;
+        
+        // Get conversations mastered (completed lessons)
+        $totalLessons = cache()->remember('total_lessons_count', 3600, fn() => Lesson::count());
+        $conversationsMastered = cache()->remember(
+            "user.{$user->id}.completed_lessons",
+            600,
+            fn() => UserProgress::where('user_id', $user->id)
+                ->where('completion_percentage', '>=', 100)
+                ->count()
+        );
+        
+        // Get total speaking time (all time study minutes)
+        $totalSpeakingMinutes = cache()->remember(
+            "user.{$user->id}.total_speaking_minutes",
+            600,
+            fn() => DailyStreak::where('user_id', $user->id)->sum('study_minutes')
+        );
+        $totalSpeakingHours = round($totalSpeakingMinutes / 60, 1);
+
         // Get recent lessons accessed (with eager loading and caching)
         $recentLessons = cache()->remember(
             "user.{$user->id}.recent_lessons",
@@ -89,15 +111,7 @@ class DashboardController extends Controller
         );
 
         // Get overall progress (cached for 10 minutes)
-        $totalLessons = cache()->remember('total_lessons_count', 3600, fn() => Lesson::count());
-        $completedLessons = cache()->remember(
-            "user.{$user->id}.completed_lessons",
-            600,
-            fn() => UserProgress::where('user_id', $user->id)
-                ->where('completion_percentage', '>=', 100)
-                ->count()
-        );
-        $overallProgress = $totalLessons > 0 ? ($completedLessons / $totalLessons) * 100 : 0;
+        $overallProgress = $totalLessons > 0 ? ($conversationsMastered / $totalLessons) * 100 : 0;
 
         // Get recent achievements (last 3)
         $recentAchievements = $user->achievements()
@@ -111,6 +125,17 @@ class DashboardController extends Controller
 
         // Get last viewed lesson for "Continue Learning" button
         $lastViewedLesson = $this->recentlyViewedService->getLastViewedOfType($user, 'lesson');
+        
+        // Get current lesson in progress
+        $currentLesson = UserProgress::where('user_id', $user->id)
+            ->where('completion_percentage', '>', 0)
+            ->where('completion_percentage', '<', 100)
+            ->with('lesson')
+            ->orderBy('last_accessed_at', 'desc')
+            ->first();
+        
+        // Check if user is new (no activity)
+        $isNewUser = $totalSpeakingMinutes === 0 && $conversationsMastered === 0;
 
         return view('dashboard.index', compact(
             'user',
@@ -126,11 +151,19 @@ class DashboardController extends Controller
             'xpProgressPercentage',
             'currentStreak',
             'studyTimeToday',
+            'studyGoalMinutes',
+            'todaySpeakingProgress',
+            'conversationsMastered',
+            'totalLessons',
+            'totalSpeakingMinutes',
+            'totalSpeakingHours',
             'recentLessons',
             'overallProgress',
             'recentAchievements',
             'recentlyViewed',
-            'lastViewedLesson'
+            'lastViewedLesson',
+            'currentLesson',
+            'isNewUser'
         ));
     }
 }

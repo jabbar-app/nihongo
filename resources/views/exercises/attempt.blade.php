@@ -1,6 +1,13 @@
 <x-app-layout>
   <div class="py-4 sm:py-12">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Breadcrumb -->
+      <x-breadcrumb :items="[
+        ['label' => 'Lessons', 'url' => route('lessons.index')],
+        ['label' => $drill->lesson->title, 'url' => route('lessons.show', $drill->lesson->slug)],
+        ['label' => $drill->title]
+      ]" />
+
       <!-- Header -->
       <div class="mb-4 sm:mb-6">
         <a href="{{ route('lessons.show', $drill->lesson->slug) }}"
@@ -167,7 +174,7 @@
                 <button type="submit" :disabled="!canSubmit() || submitting"
                   aria-label="Submit all answers"
                   class="inline-flex items-center px-6 py-3 bg-indigo-600 border border-transparent rounded-lg font-semibold text-sm text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 disabled:opacity-50 disabled:cursor-not-allowed btn-press">
-                  <span x-show="!submitting">Submit Answers</span>
+                  <span x-show="!submitting">Check My Speaking</span>
                   <span x-show="submitting" class="flex items-center">
                     <span class="spinner-sm mr-2"></span>
                     Submitting...

@@ -1,6 +1,12 @@
 <x-app-layout>
   <div class="py-12">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Breadcrumb -->
+      <x-breadcrumb :items="[
+        ['label' => 'Flashcards', 'url' => route('flashcards.index')],
+        ['label' => 'Create']
+      ]" />
+
       <!-- Header -->
       <div class="mb-6">
         <div class="flex items-center justify-between">
@@ -12,9 +18,9 @@
               </svg>
               Back to Flashcards
             </a>
-            <h1 class="text-3xl font-bold text-gray-900">Create Flashcards</h1>
+            <h1 class="text-3xl font-bold text-gray-900">Practice Speaking These Phrases</h1>
             @if ($lesson)
-              <p class="mt-1 text-gray-600">From lesson: {{ $lesson->title }}</p>
+              <p class="mt-1 text-gray-600">From conversation: {{ $lesson->title }}</p>
             @endif
           </div>
         </div>
@@ -45,8 +51,8 @@
             @if ($lesson && $phrases->count() > 0)
               <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <div class="mb-4">
-                  <h2 class="text-lg font-semibold text-gray-900 mb-2">Select Phrases</h2>
-                  <p class="text-sm text-gray-600">Choose the phrases you want to create flashcards from.</p>
+                  <h2 class="text-lg font-semibold text-gray-900 mb-2">Select Phrases to Practice</h2>
+                  <p class="text-sm text-gray-600">Choose the phrases you want to practice speaking.</p>
                 </div>
 
                 <div class="space-y-3 max-h-96 overflow-y-auto">
@@ -83,12 +89,12 @@
                     d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 <h3 class="mt-2 text-sm font-medium text-gray-900">No lesson selected</h3>
-                <p class="mt-1 text-sm text-gray-500">Go to a lesson and click "Create Flashcards" to bulk create from
+                <p class="mt-1 text-sm text-gray-500">Go to a lesson and click "Practice Speaking These Phrases" to create flashcards from
                   phrases.</p>
                 <div class="mt-6">
                   <a href="{{ route('lessons.index') }}"
                     class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700">
-                    Browse Lessons
+                    Browse Conversations
                   </a>
                 </div>
               </div>

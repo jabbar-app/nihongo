@@ -1,6 +1,13 @@
 <x-app-layout>
   <div class="py-12">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Breadcrumb -->
+      <x-breadcrumb :items="[
+        ['label' => 'Lessons', 'url' => route('lessons.index')],
+        ['label' => $shadowingExercise->lesson->title, 'url' => route('lessons.show', $shadowingExercise->lesson->slug)],
+        ['label' => $shadowingExercise->title]
+      ]" />
+
       <!-- Header with back navigation -->
       <div class="mb-6">
         <a href="{{ route('lessons.show', $shadowingExercise->lesson->slug) }}"
@@ -245,7 +252,7 @@
                     <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
                     <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
                   </svg>
-                  <span>Start Recording</span>
+                  <span>Record Your Speaking</span>
                 </button>
 
                 <!-- Stop Recording -->
@@ -559,7 +566,7 @@
                     </span>
                     @if($completion->duration_seconds > 0)
                     <span class="text-xs text-gray-500">
-                      ({{ gmdate('i:s', $completion->duration_seconds) }} practice time)
+                      ({{ gmdate('i:s', $completion->duration_seconds) }} speaking time)
                     </span>
                     @endif
                   </div>
@@ -650,7 +657,7 @@
               }
             } catch (error) {
               console.error('Error marking complete:', error);
-              this.errorMessage = error.message || 'An error occurred while marking the exercise as complete';
+              this.errorMessage = '😅 We couldn\'t save your progress right now. Don\'t worry, try again in a moment!';
             } finally {
               this.isSubmitting = false;
             }
@@ -761,6 +768,7 @@
 
             } catch (error) {
               console.error('Error accessing microphone:', error);
+              this.permissionError = '😅 We need microphone access for speaking practice. Please check your browser permissions and try again!';
               
               if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
                 this.permissionError = 'Microphone access was denied. Please allow microphone access in your browser settings and try again.';
@@ -908,7 +916,7 @@
               }
             } catch (error) {
               console.error('Error saving recording:', error);
-              this.saveError = error.message || 'An error occurred while saving the recording';
+              this.saveError = '😅 We couldn\'t save your recording right now. Please try again in a moment!';
             } finally {
               this.isSaving = false;
             }
@@ -1087,7 +1095,7 @@
         currentPlayingAudio = new Audio(url);
         currentPlayingAudio.play().catch(error => {
           console.error('Error playing recording:', error);
-          alert('Failed to play recording');
+          alert('😅 Having trouble playing the audio. Please try again!');
         });
 
         // Clean up when finished
@@ -1120,7 +1128,7 @@
           }
         } catch (error) {
           console.error('Error deleting recording:', error);
-          alert('Failed to delete recording: ' + error.message);
+          alert('😅 We couldn\'t delete that recording right now. Please try again!');
         }
       }
     </script>

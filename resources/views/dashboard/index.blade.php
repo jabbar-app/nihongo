@@ -1,78 +1,323 @@
 <x-app-layout>
     <div class="py-4 sm:py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
-            <!-- Welcome Message -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-4 sm:p-6 text-gray-900">
-                    <h2 class="text-xl sm:text-2xl font-bold mb-1">Welcome back, {{ $user->name }}-さん! 👋</h2>
-                    <p class="text-sm sm:text-base text-gray-700 mt-1">お帰りなさい！ 学習を続けましょう。</p>
+            <!-- Personalized Greeting Section -->
+            <div class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 overflow-hidden shadow-sm sm:rounded-lg border border-indigo-100">
+                <div class="p-6 sm:p-8">
+                    @php
+                        $hour = now()->hour;
+                        $greeting = $hour < 12 ? 'Good morning' : ($hour < 18 ? 'Good afternoon' : 'Good evening');
+                        $japaneseGreeting = $hour < 12 ? 'おはようございます' : ($hour < 18 ? 'こんにちは' : 'こんばんは');
+                        
+                        // Motivational messages based on progress
+                        $motivationalMessages = [
+                            'Ready to practice speaking today?',
+                            'Let\'s keep your speaking streak going!',
+                            'Time to master some conversations!',
+                            'Your speaking practice awaits!',
+                            'Let\'s improve your Japanese speaking today!'
+                        ];
+                        $motivationalMessage = $motivationalMessages[array_rand($motivationalMessages)];
+                    @endphp
+                    
+                    <div class="flex items-start justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                                {{ $greeting }}, {{ $user->name }}! 🗣️
+                            </h2>
+                            <p class="text-lg text-indigo-700 font-medium mb-1">{{ $japaneseGreeting }}</p>
+                            <p class="text-base text-gray-700">{{ $motivationalMessage }}</p>
+                        </div>
+                        @if($currentStreak > 0)
+                            <div class="hidden sm:block">
+                                <div class="bg-white rounded-lg px-4 py-3 shadow-sm border border-orange-200">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-2xl">🔥</span>
+                                        <div>
+                                            <div class="text-2xl font-bold text-orange-600">{{ $currentStreak }}</div>
+                                            <div class="text-xs text-gray-600">day streak</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                    
+                    <!-- Today's Speaking Goal Widget -->
+                    <div class="bg-white rounded-lg p-6 shadow-sm border border-indigo-100">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Today's Speaking Goal
+                            </h3>
+                            <span class="text-sm font-medium text-indigo-600">{{ $studyTimeToday }}/{{ $studyGoalMinutes }} min</span>
+                        </div>
+                        
+                        <!-- Progress Bar -->
+                        <div class="relative">
+                            <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                                <div class="bg-gradient-to-r from-indigo-500 to-purple-600 h-4 rounded-full transition-all duration-500 ease-out flex items-center justify-end pr-2"
+                                     style="width: {{ $todaySpeakingProgress }}%">
+                                    @if($todaySpeakingProgress > 15)
+                                        <span class="text-xs font-bold text-white">{{ round($todaySpeakingProgress) }}%</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Encouraging Message -->
+                        <p class="mt-3 text-sm text-gray-600">
+                            @if($todaySpeakingProgress >= 100)
+                                <span class="text-green-600 font-semibold">🎉 すごい！ You've reached your goal today!</span>
+                            @elseif($todaySpeakingProgress >= 75)
+                                <span class="text-indigo-600 font-semibold">Almost there! Keep going! 💪</span>
+                            @elseif($todaySpeakingProgress >= 50)
+                                <span class="text-indigo-600 font-semibold">Great progress! You're halfway there! 🌟</span>
+                            @elseif($todaySpeakingProgress > 0)
+                                <span class="text-gray-700">Good start! Let's keep the momentum going!</span>
+                            @else
+                                <span class="text-gray-700">Ready to start speaking? Let's begin your practice!</span>
+                            @endif
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Quick Stats Grid -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6">
-                <!-- Cards Due Today -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg hover-lift card-hover">
-                    <div class="p-4 sm:p-6">
-                        <div class="flex items-center justify-between mb-2">
-                            <h3 class="text-xs sm:text-sm font-medium text-gray-600">Cards Due</h3>
-                            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                            </svg>
+            <!-- Empty State for New Users -->
+            @if($isNewUser)
+                <div class="bg-gradient-to-br from-indigo-500 to-purple-600 overflow-hidden shadow-xl sm:rounded-xl border-2 border-indigo-300">
+                    <div class="p-8 sm:p-12 text-center text-white">
+                        <div class="mb-6">
+                            <div class="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full mb-4">
+                                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                                </svg>
+                            </div>
+                            <h2 class="text-3xl sm:text-4xl font-bold mb-3">Welcome to Your Speaking Journey! 🎉</h2>
+                            <p class="text-xl text-indigo-100 mb-2">ようこそ！</p>
+                            <p class="text-lg text-white/90 max-w-2xl mx-auto">
+                                You're about to start an exciting adventure learning Japanese through real conversations. 
+                                Let's get you speaking with confidence!
+                            </p>
                         </div>
-                        <p class="text-2xl sm:text-3xl font-bold text-gray-900">{{ $cardsDueToday }}</p>
-                        <p class="text-xs text-gray-500 mt-1">{{ $newCardsAvailable }} new</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 max-w-4xl mx-auto">
+                            <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+                                <div class="text-4xl mb-3">🗣️</div>
+                                <h3 class="font-semibold text-lg mb-2">Practice Real Conversations</h3>
+                                <p class="text-sm text-white/80">Learn Japanese through everyday scenarios and dialogues</p>
+                            </div>
+                            <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+                                <div class="text-4xl mb-3">🎤</div>
+                                <h3 class="font-semibold text-lg mb-2">Shadow Native Speakers</h3>
+                                <p class="text-sm text-white/80">Perfect your pronunciation by mimicking native audio</p>
+                            </div>
+                            <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+                                <div class="text-4xl mb-3">📈</div>
+                                <h3 class="font-semibold text-lg mb-2">Track Your Progress</h3>
+                                <p class="text-sm text-white/80">Watch your speaking skills improve day by day</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4 max-w-md mx-auto">
+                            <a href="{{ route('lessons.index') }}" 
+                               class="flex items-center justify-center w-full px-8 py-4 bg-white text-indigo-600 hover:bg-indigo-50 rounded-lg font-bold text-lg transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105">
+                                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                                Start Your First Conversation
+                            </a>
+                            <p class="text-sm text-white/80">
+                                💡 Tip: Start with Lesson 1 to learn basic greetings and introductions
+                            </p>
+                        </div>
                     </div>
                 </div>
+            @endif
 
-                <!-- Level & XP -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg hover-lift card-hover">
-                    <div class="p-4 sm:p-6">
-                        <div class="flex items-center justify-between mb-2">
-                            <h3 class="text-xs sm:text-sm font-medium text-gray-600">Level</h3>
-                            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                            </svg>
-                        </div>
-                        <p class="text-2xl sm:text-3xl font-bold text-gray-900">{{ $currentLevel }}</p>
-                        <div class="mt-2">
-                            <div class="flex justify-between text-xs text-gray-600 mb-1">
-                                <span class="truncate">{{ number_format($xpProgress) }}</span>
-                                <span class="truncate">{{ number_format($xpNeeded) }}</span>
+            <!-- Speaking Metrics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6" x-data="{ 
+                speakingStreak: {{ $currentStreak }},
+                conversationsMastered: {{ $conversationsMastered }},
+                speakingHours: {{ $totalSpeakingHours }},
+                animateCounters() {
+                    // Counters will animate on page load
+                }
+            }" x-init="animateCounters()">
+                <!-- Speaking Streak Card -->
+                <a href="{{ route('streak.index') }}" class="bg-gradient-to-br from-orange-50 to-red-50 overflow-hidden shadow-lg sm:rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1 block border border-orange-200">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-semibold text-orange-700 uppercase tracking-wide">Speaking Streak</h3>
+                            <div class="bg-orange-100 rounded-full p-2">
+                                <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"></path>
+                                </svg>
                             </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-purple-500 h-2 rounded-full progress-bar" style="width: {{ min($xpProgressPercentage, 100) }}%"></div>
-                            </div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Current Streak -->
-                <a href="{{ route('streak.index') }}" class="bg-white overflow-hidden shadow-sm sm:rounded-lg hover-lift card-hover block min-h-[44px] touch-manipulation">
-                    <div class="p-4 sm:p-6">
-                        <div class="flex items-center justify-between mb-2">
-                            <h3 class="text-xs sm:text-sm font-medium text-gray-600">Streak</h3>
-                            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"></path>
-                            </svg>
+                        <div class="flex items-baseline gap-2 mb-2">
+                            <p class="text-5xl font-bold text-orange-600" x-text="speakingStreak">{{ $currentStreak }}</p>
+                            <span class="text-2xl text-orange-500">🔥</span>
                         </div>
-                        <p class="text-2xl sm:text-3xl font-bold text-gray-900">{{ $currentStreak }}</p>
-                        <p class="text-xs text-gray-500 mt-1">{{ $currentStreak === 1 ? 'day' : 'days' }}</p>
+                        <p class="text-sm text-orange-700 font-medium">
+                            {{ $currentStreak === 1 ? 'day of practice' : 'days of practice' }}
+                        </p>
+                        <p class="text-xs text-orange-600 mt-2">Keep it going!</p>
                     </div>
                 </a>
 
-                <!-- Study Time Today -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg hover-lift card-hover">
-                    <div class="p-4 sm:p-6">
-                        <div class="flex items-center justify-between mb-2">
-                            <h3 class="text-xs sm:text-sm font-medium text-gray-600">Today</h3>
-                            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
+                <!-- Conversations Mastered Card -->
+                <div class="bg-gradient-to-br from-green-50 to-emerald-50 overflow-hidden shadow-lg sm:rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-green-200">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-semibold text-green-700 uppercase tracking-wide">Conversations Mastered</h3>
+                            <div class="bg-green-100 rounded-full p-2">
+                                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                </svg>
+                            </div>
                         </div>
-                        <p class="text-2xl sm:text-3xl font-bold text-gray-900">{{ $studyTimeToday }}</p>
-                        <p class="text-xs text-gray-500 mt-1">minutes</p>
+                        <div class="flex items-baseline gap-2 mb-2">
+                            <p class="text-5xl font-bold text-green-600" x-text="conversationsMastered">{{ $conversationsMastered }}</p>
+                            <span class="text-lg text-green-500">/{{ $totalLessons }}</span>
+                        </div>
+                        <p class="text-sm text-green-700 font-medium">lessons completed</p>
+                        <div class="mt-3">
+                            <div class="w-full bg-green-200 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-green-500 to-emerald-600 h-2 rounded-full transition-all duration-500" 
+                                     style="width: {{ $totalLessons > 0 ? min(($conversationsMastered / $totalLessons) * 100, 100) : 0 }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Speaking Time Card -->
+                <div class="bg-gradient-to-br from-indigo-50 to-purple-50 overflow-hidden shadow-lg sm:rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-indigo-200">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-semibold text-indigo-700 uppercase tracking-wide">Speaking Time</h3>
+                            <div class="bg-indigo-100 rounded-full p-2">
+                                <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="flex items-baseline gap-2 mb-2">
+                            <p class="text-5xl font-bold text-indigo-600" x-text="speakingHours">{{ $totalSpeakingHours }}</p>
+                            <span class="text-lg text-indigo-500">hrs</span>
+                        </div>
+                        <p class="text-sm text-indigo-700 font-medium">total speaking time</p>
+                        <p class="text-xs text-indigo-600 mt-2">{{ $totalSpeakingMinutes }} minutes</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weekly Speaking Progress Calendar -->
+            <div class="bg-white overflow-hidden shadow-lg sm:rounded-xl border border-gray-200">
+                <div class="p-6">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        Your Speaking Progress This Week
+                    </h3>
+                    
+                    @php
+                        // Get the last 7 days of activity
+                        $weekDays = [];
+                        $today = \Carbon\Carbon::today();
+                        
+                        for ($i = 6; $i >= 0; $i--) {
+                            $date = $today->copy()->subDays($i);
+                            $dayStreak = \App\Models\DailyStreak::where('user_id', $user->id)
+                                ->where('date', $date->format('Y-m-d'))
+                                ->first();
+                            
+                            $weekDays[] = [
+                                'day' => $date->format('D'),
+                                'date' => $date->format('M j'),
+                                'minutes' => $dayStreak ? $dayStreak->study_minutes : 0,
+                                'hasActivity' => $dayStreak && $dayStreak->study_minutes > 0,
+                                'isToday' => $date->isToday(),
+                            ];
+                        }
+                    @endphp
+                    
+                    <div class="grid grid-cols-7 gap-2 sm:gap-3">
+                        @foreach($weekDays as $day)
+                            <div class="flex flex-col items-center">
+                                <div class="text-xs font-medium text-gray-600 mb-2">{{ $day['day'] }}</div>
+                                <div class="relative group">
+                                    <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-lg flex flex-col items-center justify-center transition-all duration-200 
+                                        @if($day['hasActivity'])
+                                            @if($day['minutes'] >= 30)
+                                                bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-md
+                                            @elseif($day['minutes'] >= 15)
+                                                bg-gradient-to-br from-green-400 to-green-500 text-white shadow-sm
+                                            @else
+                                                bg-gradient-to-br from-green-300 to-green-400 text-white
+                                            @endif
+                                        @else
+                                            bg-gray-100 text-gray-400
+                                        @endif
+                                        @if($day['isToday'])
+                                            ring-2 ring-indigo-500 ring-offset-2
+                                        @endif
+                                        hover:scale-110 cursor-pointer">
+                                        
+                                        @if($day['hasActivity'])
+                                            <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                            </svg>
+                                        @else
+                                            <div class="w-2 h-2 rounded-full bg-gray-300"></div>
+                                        @endif
+                                    </div>
+                                    
+                                    <!-- Tooltip -->
+                                    @if($day['hasActivity'])
+                                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
+                                            {{ $day['date'] }}: {{ $day['minutes'] }} min
+                                            <div class="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                                                <div class="border-4 border-transparent border-t-gray-900"></div>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="text-xs text-gray-500 mt-2 font-medium">
+                                    @if($day['hasActivity'])
+                                        {{ $day['minutes'] }}m
+                                    @else
+                                        -
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                    
+                    <!-- Legend -->
+                    <div class="mt-6 pt-4 border-t border-gray-200">
+                        <div class="flex flex-wrap items-center justify-center gap-4 text-xs text-gray-600">
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 rounded bg-gray-100"></div>
+                                <span>No activity</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 rounded bg-gradient-to-br from-green-300 to-green-400"></div>
+                                <span>< 15 min</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 rounded bg-gradient-to-br from-green-400 to-green-500"></div>
+                                <span>15-30 min</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 rounded bg-gradient-to-br from-green-500 to-emerald-600"></div>
+                                <span>30+ min</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -108,13 +353,7 @@
 
                     <!-- Loading State -->
                     <div x-show="loading" class="flex items-center justify-center py-12">
-                        <div class="flex flex-col items-center">
-                            <svg class="animate-spin h-12 w-12 text-blue-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            <p class="text-gray-600">Loading analytics...</p>
-                        </div>
+                        <x-loading-state message="Loading your speaking progress..." />
                     </div>
 
                     <!-- Error State -->
@@ -133,7 +372,7 @@
                     <!-- Key Metrics -->
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                         <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-                            <div class="text-sm font-medium text-blue-700 mb-1">Total Study Hours</div>
+                            <div class="text-sm font-medium text-blue-700 mb-1">Total Speaking Hours</div>
                             <div class="text-3xl font-bold text-blue-900" x-text="metrics.totalHours || '0'"></div>
                             <div class="text-xs text-blue-600 mt-1" x-text="(metrics.totalMinutes || 0) + ' minutes'"></div>
                         </div>
@@ -154,9 +393,9 @@
                         </div>
                     </div>
 
-                    <!-- Study Time Chart -->
+                    <!-- Speaking Time Chart -->
                     <div class="mb-6">
-                        <h4 class="text-sm font-semibold text-gray-900 mb-3">Study Time</h4>
+                        <h4 class="text-sm font-semibold text-gray-900 mb-3">Speaking Time</h4>
                         <div class="bg-gray-50 rounded-lg p-4">
                             <div class="space-y-2">
                                 <template x-for="(day, index) in studyTimeData" :key="index">
@@ -281,43 +520,113 @@
                 </div>
             </div>
 
-            <!-- Quick Actions -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-4 sm:p-6">
-                    <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-                        <!-- Start Review -->
-                        <a href="{{ route('flashcards.review') }}" class="flex items-center justify-center px-6 py-4 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white rounded-lg transition-colors duration-200 min-h-[56px] touch-manipulation">
-                            <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                            </svg>
-                            <span class="font-semibold text-sm sm:text-base">Start Review</span>
-                        </a>
+            <!-- Quick Actions for Speaking Practice -->
+            <div class="space-y-4">
+                <h3 class="text-xl font-bold text-gray-900">Quick Actions</h3>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <!-- Continue Conversation Card -->
+                    @if($currentLesson)
+                        <div class="bg-white overflow-hidden shadow-lg sm:rounded-xl border-2 border-indigo-200 hover:border-indigo-400 transition-all duration-300">
+                            <div class="p-6">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="bg-indigo-100 rounded-full p-3">
+                                            <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Continue Conversation</h4>
+                                            <p class="text-lg font-bold text-gray-900 mt-1">{{ $currentLesson->lesson->title }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <div class="flex items-center justify-between text-sm text-gray-600 mb-2">
+                                        <span>Progress</span>
+                                        <span class="font-semibold">{{ round($currentLesson->completion_percentage) }}%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-3">
+                                        <div class="bg-gradient-to-r from-indigo-500 to-purple-600 h-3 rounded-full transition-all duration-500" 
+                                             style="width: {{ $currentLesson->completion_percentage }}%"></div>
+                                    </div>
+                                </div>
+                                
+                                <a href="{{ route('lessons.show', $currentLesson->lesson->slug) }}" 
+                                   class="flex items-center justify-center w-full px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg font-semibold transition-all duration-200 min-h-[48px] touch-manipulation shadow-md hover:shadow-lg">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Practice Speaking
+                                </a>
+                            </div>
+                        </div>
+                    @else
+                        <div class="bg-white overflow-hidden shadow-lg sm:rounded-xl border-2 border-gray-200 hover:border-indigo-300 transition-all duration-300">
+                            <div class="p-6">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <div class="bg-gray-100 rounded-full p-3">
+                                        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Start Speaking</h4>
+                                        <p class="text-base text-gray-700 mt-1">Begin your first conversation</p>
+                                    </div>
+                                </div>
+                                
+                                <p class="text-sm text-gray-600 mb-4">Choose your first conversation topic and start practicing speaking Japanese today!</p>
+                                
+                                <a href="{{ route('lessons.index') }}" 
+                                   class="flex items-center justify-center w-full px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg font-semibold transition-all duration-200 min-h-[48px] touch-manipulation shadow-md hover:shadow-lg">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                    Browse Conversations
+                                </a>
+                            </div>
+                        </div>
+                    @endif
 
-                        <!-- Continue Lesson -->
-                        @if($recentLessons->isNotEmpty())
-                            <a href="{{ route('lessons.show', $recentLessons->first()->slug) }}" class="flex items-center justify-center px-6 py-4 bg-purple-500 hover:bg-purple-600 active:bg-purple-700 text-white rounded-lg transition-colors duration-200 min-h-[56px] touch-manipulation">
-                                <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    <!-- Daily Shadowing Challenge Card -->
+                    <div class="bg-gradient-to-br from-purple-500 to-pink-500 overflow-hidden shadow-lg sm:rounded-xl hover:shadow-xl transition-all duration-300">
+                        <div class="p-6 text-white">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="bg-white/20 backdrop-blur-sm rounded-full p-3">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-semibold uppercase tracking-wide opacity-90">Daily Challenge</h4>
+                                    <p class="text-lg font-bold mt-1">Shadowing Practice</p>
+                                </div>
+                            </div>
+                            
+                            <p class="text-sm opacity-90 mb-4">Perfect your pronunciation by shadowing native speakers. Practice 3 dialogues today!</p>
+                            
+                            <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 mb-4">
+                                <div class="flex items-center justify-between text-sm">
+                                    <span>Today's Progress</span>
+                                    <span class="font-semibold">0/3 completed</span>
+                                </div>
+                                <div class="w-full bg-white/20 rounded-full h-2 mt-2">
+                                    <div class="bg-white h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            
+                            <a href="{{ route('lessons.index') }}" 
+                               class="flex items-center justify-center w-full px-6 py-3 bg-white text-purple-600 hover:bg-purple-50 rounded-lg font-semibold transition-all duration-200 min-h-[48px] touch-manipulation shadow-md hover:shadow-lg">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                                 </svg>
-                                <span class="font-semibold text-sm sm:text-base">Continue Lesson</span>
+                                Start Challenge
                             </a>
-                        @else
-                            <a href="{{ route('lessons.index') }}" class="flex items-center justify-center px-6 py-4 bg-purple-500 hover:bg-purple-600 active:bg-purple-700 text-white rounded-lg transition-colors duration-200 min-h-[56px] touch-manipulation">
-                                <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                                </svg>
-                                <span class="font-semibold text-sm sm:text-base">Browse Lessons</span>
-                            </a>
-                        @endif
-
-                        <!-- View Progress -->
-                        <a href="{{ route('progress.index') }}" class="flex items-center justify-center px-6 py-4 bg-green-500 hover:bg-green-600 active:bg-green-700 text-white rounded-lg transition-colors duration-200 min-h-[56px] touch-manipulation">
-                            <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                            </svg>
-                            <span class="font-semibold text-sm sm:text-base">View Progress</span>
-                        </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -328,8 +637,8 @@
                 @if($lastViewedLesson)
                 <div class="bg-gradient-to-br from-indigo-500 to-purple-600 overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 text-white">
-                        <h3 class="text-lg font-semibold mb-2">Continue Learning</h3>
-                        <p class="text-indigo-100 mb-4">Pick up where you left off</p>
+                        <h3 class="text-lg font-semibold mb-2">Continue Speaking Practice</h3>
+                        <p class="text-indigo-100 mb-4">Pick up your conversation where you left off</p>
                         <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 mb-4">
                             <p class="font-medium">{{ $lastViewedLesson['model']->title }}</p>
                             <p class="text-sm text-indigo-100 mt-1">Last viewed {{ \Carbon\Carbon::parse($lastViewedLesson['viewed_at'])->diffForHumans() }}</p>
@@ -349,10 +658,10 @@
                         <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                         </svg>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Start Your Learning Journey</h3>
-                        <p class="text-gray-600 mb-4">Begin exploring lessons to see your progress here</p>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Start Your Speaking Journey</h3>
+                        <p class="text-gray-600 mb-4">Begin your first conversation to see your speaking progress here</p>
                         <a href="{{ route('lessons.index') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition">
-                            Browse Lessons
+                            Browse Conversations
                             <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
                             </svg>
@@ -479,8 +788,8 @@
                     <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                     </svg>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">No Achievements Yet</h3>
-                    <p class="text-gray-600 mb-4">Complete activities to unlock achievements and earn XP</p>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Your Speaking Achievements Await! 🏆</h3>
+                    <p class="text-gray-600 mb-4">Start conversations to unlock badges and celebrate your speaking milestones</p>
                     <a href="{{ route('achievements.index') }}" class="inline-flex items-center px-4 py-2 bg-yellow-500 text-white rounded-lg font-semibold hover:bg-yellow-600 transition">
                         View All Achievements
                     </a>
@@ -515,8 +824,8 @@
                                 <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                                 </svg>
-                                <p class="text-gray-600 mb-3">No lessons accessed yet</p>
-                                <a href="{{ route('lessons.index') }}" class="text-blue-500 hover:text-blue-600 font-medium">Browse Lessons</a>
+                                <p class="text-gray-600 mb-3">Ready to speak Japanese? 🗣️ Your conversation journey starts here!</p>
+                                <a href="{{ route('lessons.index') }}" class="text-blue-500 hover:text-blue-600 font-medium">Start Speaking</a>
                             </div>
                         @endif
                     </div>
@@ -603,7 +912,7 @@
                         this.calculatePieChart();
                     } catch (error) {
                         console.error('Failed to load analytics data:', error);
-                        this.error = 'Failed to load analytics data. Please try again.';
+                        this.error = '😅 We couldn\'t load your speaking progress right now. Please refresh and try again!';
                     } finally {
                         this.loading = false;
                     }

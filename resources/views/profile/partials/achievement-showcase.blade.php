@@ -60,7 +60,7 @@
         @else
         <div class="text-center py-8 bg-gray-50 rounded-lg">
             <div class="text-4xl mb-2">🏆</div>
-            <p class="text-gray-600 text-sm">No achievements yet. Start learning to unlock them!</p>
+            <p class="text-gray-600 text-sm">Your speaking achievements await! 🌟 Start conversations to unlock badges and celebrate your progress!</p>
         </div>
         @endif
 

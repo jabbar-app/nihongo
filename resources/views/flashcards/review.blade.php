@@ -7,6 +7,11 @@
 
     <div class="py-4 sm:py-12">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Breadcrumb -->
+            <x-breadcrumb :items="[
+                ['label' => 'Flashcards', 'url' => route('flashcards.index')],
+                ['label' => 'Review']
+            ]" />
             <div x-data="flashcardReview({{ json_encode($sessionCards) }}, {{ json_encode($sessionData) }})" 
                  x-init="init()"
                  @keydown.window="handleKeyPress($event)"
@@ -174,7 +179,7 @@
                             </div>
                             <div class="bg-gray-50 rounded-lg p-4">
                                 <div class="text-3xl font-bold text-purple-600" x-text="formatTime(timeSpent)"></div>
-                                <div class="text-sm text-gray-600">Time Spent</div>
+                                <div class="text-sm text-gray-600">Speaking Practice Time</div>
                             </div>
                         </div>
 
@@ -305,7 +310,7 @@
                         
                         // Show user-friendly error message
                         if (event.error === 'not-allowed') {
-                            alert('Audio playback was blocked. Please check your browser permissions.');
+                            alert('😅 Audio playback was blocked. Please check your browser permissions and try again!');
                         } else if (event.error === 'network') {
                             alert('Network error occurred while loading audio.');
                         } else {
@@ -404,7 +409,7 @@
                         }
                     } catch (error) {
                         console.error('Error recording review:', error);
-                        alert('Failed to record review. Please try again.');
+                        alert('😅 We couldn\'t save your review right now. Please try again!');
                     }
                 },
 

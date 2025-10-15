@@ -47,7 +47,7 @@
                     <!-- Key Metrics -->
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                         <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-                            <div class="text-sm font-medium text-blue-700 mb-1">Total Study Hours</div>
+                            <div class="text-sm font-medium text-blue-700 mb-1">Total Speaking Hours</div>
                             <div class="text-3xl font-bold text-blue-900" x-text="metrics.totalHours"></div>
                             <div class="text-xs text-blue-600 mt-1" x-text="metrics.totalMinutes + ' minutes'"></div>
                         </div>
@@ -68,9 +68,9 @@
                         </div>
                     </div>
 
-                    <!-- Study Time Chart -->
+                    <!-- Speaking Time Chart -->
                     <div class="mb-6">
-                        <h4 class="text-sm font-semibold text-gray-900 mb-3">Study Time</h4>
+                        <h4 class="text-sm font-semibold text-gray-900 mb-3">Speaking Time</h4>
                         <div class="bg-gray-50 rounded-lg p-4">
                             <div class="space-y-2">
                                 <template x-for="(day, index) in studyTimeData" :key="index">
@@ -198,18 +198,18 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <a href="{{ route('flashcards.review') }}" 
                    class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-6 text-center transition">
-                    <div class="text-2xl font-bold mb-2">Start Review</div>
-                    <div class="text-sm opacity-90">Practice your flashcards</div>
+                    <div class="text-2xl font-bold mb-2">Practice Speaking</div>
+                    <div class="text-sm opacity-90">Review your phrases</div>
                 </a>
                 <a href="{{ route('lessons.index') }}" 
                    class="bg-green-600 hover:bg-green-700 text-white rounded-lg p-6 text-center transition">
-                    <div class="text-2xl font-bold mb-2">Continue Lesson</div>
-                    <div class="text-sm opacity-90">Keep learning</div>
+                    <div class="text-2xl font-bold mb-2">Continue Conversation</div>
+                    <div class="text-sm opacity-90">Keep speaking</div>
                 </a>
                 <a href="{{ route('progress.index') }}" 
                    class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg p-6 text-center transition">
-                    <div class="text-2xl font-bold mb-2">View Progress</div>
-                    <div class="text-sm opacity-90">See detailed stats</div>
+                    <div class="text-2xl font-bold mb-2">Speaking Progress</div>
+                    <div class="text-sm opacity-90">See your speaking stats</div>
                 </a>
             </div>
 

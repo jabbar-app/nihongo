@@ -7,6 +7,19 @@ Route::get('/', function () {
     return view('landing');
 });
 
+// Test routes for component development
+Route::get('/test-audio-player', function () {
+    return view('test-audio-player');
+})->name('test.audio-player');
+
+Route::get('/test-progress-components', function () {
+    return view('test-progress-components');
+})->name('test.progress-components');
+
+Route::get('/test-conversation-cards', function () {
+    return view('test-conversation-cards');
+})->name('test.conversation-cards');
+
 Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');

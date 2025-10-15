@@ -19,7 +19,7 @@
                 <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                 </svg>
-                <p class="text-gray-600">No level-ups yet. Keep learning to level up!</p>
+                <p class="text-gray-600">Your speaking milestones will appear here! ⚡ Keep practicing conversations to level up!</p>
             </div>
         @else
             <div class="space-y-3">

@@ -67,7 +67,7 @@
             <h3 class="text-sm font-medium text-blue-700 mb-4">Study Goals</h3>
             <div class="space-y-3">
                 <div class="flex items-center justify-between">
-                    <span class="text-sm text-blue-900">Daily Study Time</span>
+                    <span class="text-sm text-blue-900">Daily Speaking Goal</span>
                     <span class="text-lg font-bold text-blue-900">{{ $profile->study_goal_minutes ?? 120 }} minutes</span>
                 </div>
                 <div class="flex items-center justify-between">

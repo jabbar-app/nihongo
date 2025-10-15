@@ -7,6 +7,10 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <!-- Breadcrumb -->
+            <x-breadcrumb :items="[
+                ['label' => 'Study Plan']
+            ]" />
             <!-- Plan Header -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6">
@@ -198,7 +202,7 @@
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('Failed to update activity. Please try again.');
+                        alert('😅 We couldn\'t update that activity right now. Please try again!');
                     });
                 }
             }

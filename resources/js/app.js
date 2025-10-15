@@ -2,6 +2,7 @@ import './bootstrap';
 
 import Alpine from 'alpinejs';
 import audioPlayer from './components/audioPlayer';
+import audioPlayerEnhanced from './components/audioPlayerEnhanced';
 import exerciseAttempt from './components/exerciseAttempt';
 import keyboardShortcuts from './components/keyboardShortcuts';
 import notificationService from './notification-service';
@@ -10,6 +11,7 @@ window.Alpine = Alpine;
 
 // Register Alpine.js components
 Alpine.data('audioPlayer', audioPlayer);
+Alpine.data('audioPlayerEnhanced', audioPlayerEnhanced);
 Alpine.data('exerciseAttempt', exerciseAttempt);
 Alpine.data('keyboardShortcuts', keyboardShortcuts);
 

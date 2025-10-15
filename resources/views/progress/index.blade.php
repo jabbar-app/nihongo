@@ -7,6 +7,10 @@
 
     <div class="py-4 sm:py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
+            <!-- Breadcrumb -->
+            <x-breadcrumb :items="[
+                ['label' => 'Progress']
+            ]" />
             
             <!-- Overall Progress Section -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -79,10 +83,10 @@
                             </div>
                         @empty
                             <div class="text-center py-8 text-gray-500">
-                                <p>No progress yet. Start learning to see your progress here!</p>
+                                <p>Ready to start your speaking journey? 🎤 Begin your first conversation to track your progress!</p>
                                 <a href="{{ route('lessons.index') }}" 
                                    class="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                                    Browse Lessons
+                                    Start Speaking Practice
                                 </a>
                             </div>
                         @endforelse
@@ -117,10 +121,10 @@
                 </div>
             </div>
 
-            <!-- Study Time Graphs -->
+            <!-- Speaking Time Graphs -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Study Time (Last 7 Days)</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Speaking Time (Last 7 Days)</h3>
                     
                     <div class="mb-6">
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -282,7 +286,7 @@
                         @endif
                     @else
                         <div class="text-center py-8 text-gray-500">
-                            <p>No exercise attempts yet. Complete some drills to see your statistics!</p>
+                            <p>Your speaking practice stats will appear here! 📊 Start practicing conversations to see your progress.</p>
                             <a href="{{ route('lessons.index') }}" 
                                class="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                                 Start Exercises

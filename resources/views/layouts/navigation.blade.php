@@ -13,13 +13,13 @@
                 <!-- Navigation Links -->
                 <div class="hidden space-x-6 sm:-my-px sm:ms-10 sm:flex" role="menubar" style="margin-top: auto; margin-bottom: auto;">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
+                        {{ __('navigation.dashboard') }}
                     </x-nav-link>
                     <x-nav-link :href="route('lessons.index')" :active="request()->routeIs('lessons.*')">
-                        {{ __('Lessons') }}
+                        {{ __('navigation.lessons') }}
                     </x-nav-link>
                     <x-nav-link :href="route('flashcards.index')" :active="request()->routeIs('flashcards.*')">
-                        {{ __('Flashcards') }}
+                        {{ __('navigation.flashcards') }}
                     </x-nav-link>
 
                     <!-- More (Overflow) -->
@@ -34,13 +34,13 @@
                         </x-slot>
                         <x-slot name="content">
                             <x-dropdown-link :href="route('exercises.history')">
-                                {{ __('Exercises') }}
+                                {{ __('navigation.exercises') }}
                             </x-dropdown-link>
                             <x-dropdown-link :href="route('progress.index')">
-                                {{ __('Progress') }}
+                                {{ __('navigation.progress') }}
                             </x-dropdown-link>
                             <x-dropdown-link :href="route('achievements.index')">
-                                {{ __('Achievements') }}
+                                {{ __('navigation.achievements') }}
                             </x-dropdown-link>
                             <x-dropdown-link :href="route('study-plan.show')">
                                 {{ __('Study Plan') }}
@@ -101,7 +101,7 @@
 
                     <x-slot name="content">
                         <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
+                            {{ __('navigation.profile') }}
                         </x-dropdown-link>
 
                         <!-- Authentication -->
@@ -160,15 +160,15 @@
         </div>
 
         <div class="pt-2 pb-3 space-y-1">
-            <div class="px-4 pt-2 pb-1 text-xs font-semibold text-gray-500">Learn</div>
+            <div class="px-4 pt-2 pb-1 text-xs font-semibold text-gray-500">{{ __('navigation.learn') }}</div>
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
+                {{ __('navigation.dashboard') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('lessons.index')" :active="request()->routeIs('lessons.*')">
-                {{ __('Lessons') }}
+                {{ __('navigation.lessons') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('flashcards.index')" :active="request()->routeIs('flashcards.*')">
-                {{ __('Flashcards') }}
+                {{ __('navigation.flashcards') }}
             </x-responsive-nav-link>
 
             <div class="px-4 pt-3 pb-1 text-xs font-semibold text-gray-500">Practice</div>
@@ -179,12 +179,12 @@
                 {{ __('Study Plan') }}
             </x-responsive-nav-link>
 
-            <div class="px-4 pt-3 pb-1 text-xs font-semibold text-gray-500">Track</div>
+            <div class="px-4 pt-3 pb-1 text-xs font-semibold text-gray-500">{{ __('navigation.track') }}</div>
             <x-responsive-nav-link :href="route('progress.index')" :active="request()->routeIs('progress.*')">
-                {{ __('Progress') }}
+                {{ __('navigation.progress') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('achievements.index')" :active="request()->routeIs('achievements.*')">
-                {{ __('Achievements') }}
+                {{ __('navigation.achievements') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('streak.index')" :active="request()->routeIs('streak.*')">
                 {{ __('Streak') }}
@@ -205,7 +205,7 @@
 
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
+                    {{ __('navigation.profile') }}
                 </x-responsive-nav-link>
 
                 <!-- Authentication -->
